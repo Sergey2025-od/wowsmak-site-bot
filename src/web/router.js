@@ -4,6 +4,7 @@
 // ============================================================
 import { Router } from 'express'
 import { site } from './site.js'
+import { config } from '../config.js'
 import { idFromParam } from './util.js'
 import {
   getHomeData,
@@ -75,7 +76,9 @@ export function createSiteRouter() {
 
   // ---------- Кабінет / Профіль ----------
   router.get('/account', (req, res) => {
-    html(res, accountPage({ user: readSession(req) }))
+    const user = readSession(req)
+    const isAdmin = !!(user && config.adminIds.includes(Number(user.id)))
+    html(res, accountPage({ user, isAdmin }))
   })
 
   // ---------- Головна ----------
