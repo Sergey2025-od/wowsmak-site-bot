@@ -251,10 +251,10 @@ export function createAdminRouter() {
       const fields = {
         category_id: num(b.category_id), title, description: str(b.description), full_description: str(b.full_description),
         cost_price: num(b.cost_price), price: priceV, sale_price: num(b.sale_price), stock: num(b.stock),
-        weight_g: num(b.weight_g), units_per_pack: num(b.units_per_pack), rec_markup: num(b.rec_markup),
+        weight_g: weightToGrams(b.weight_g, b.weight_unit), units_per_pack: num(b.units_per_pack), rec_markup: num(b.rec_markup),
         barcode: str(b.barcode), flavors: str(b.flavors), packs: parsePacksInput(b.packs),
         proteins: num(b.proteins), fats: num(b.fats), carbs: num(b.carbs), calories: num(b.calories),
-        country_of_origin: str(b.country_of_origin), shelf_life: str(b.shelf_life),
+        country_of_origin: str(b.country_of_origin), shelf_life: str(b.shelf_life), keywords: str(b.keywords),
       }
       const created = await db.createProduct(fields)
       const imgs = parseImagesInput(b.images_json)
@@ -266,7 +266,7 @@ export function createAdminRouter() {
       } else if (str(b.image_url)) {
         try { await db.addProductImage(created.id, str(b.image_url)) } catch {}
       }
-      back(res, `/admin/products/${created.id}`, 'Товар створено')
+      back(res, '/admin/products/new', 'Товар створено. Можна додавати наступний')
     } catch (e) { back(res, '/admin/products/new', null, e.message) }
   })
 
@@ -287,11 +287,11 @@ export function createAdminRouter() {
       const patch = {
         category_id: num(b.category_id), title: str(b.title), description: str(b.description),
         full_description: str(b.full_description), cost_price: num(b.cost_price), price: num(b.price) ?? 0,
-        sale_price: num(b.sale_price), stock: num(b.stock), weight_g: num(b.weight_g),
+        sale_price: num(b.sale_price), stock: num(b.stock), weight_g: weightToGrams(b.weight_g, b.weight_unit),
         units_per_pack: num(b.units_per_pack), rec_markup: num(b.rec_markup), barcode: str(b.barcode),
         flavors: str(b.flavors), packs: parsePacksInput(b.packs), proteins: num(b.proteins), fats: num(b.fats),
         carbs: num(b.carbs), calories: num(b.calories), country_of_origin: str(b.country_of_origin),
-        shelf_life: str(b.shelf_life), in_stock: b.in_stock === 'on' || b.in_stock === 'true',
+        shelf_life: str(b.shelf_life), keywords: str(b.keywords), in_stock: b.in_stock === 'on' || b.in_stock === 'true',
       }
       const imgs = parseImagesInput(b.images_json)
       patch.image_url = imgs[0] ?? null
@@ -608,6 +608,13 @@ export function createAdminRouter() {
   return router
 }
 
+// Вага → грами (з урахуванням обраної одиниці г/кг)
+function weightToGrams(val, unit) {
+  const n = num(val)
+  if (n == null) return null
+  return unit === 'kg' ? Math.round(n * 1000) : Math.round(n)
+}
+
 // ============ Форма товару (create/edit) ============
 function productForm(p, cats) {
   const isNew = !p
@@ -641,7 +648,7 @@ function productForm(p, cats) {
     </div>
     <div class="panel"><h2 style="margin-top:0">Характеристики</h2>
       <div class="grid3">
-        <label class="f">Вага, г<input name="weight_g" value="${v(p && p.weight_g)}"/></label>
+        <label class="f">Вага<span style="display:flex;gap:6px"><input name="weight_g" value="${v(p && p.weight_g)}" placeholder="напр. 250" style="flex:1"/><select name="weight_unit" style="flex:0 0 64px"><option value="g" selected>г</option><option value="kg">кг</option></select></span></label>
         <label class="f">Штрих-код<input name="barcode" value="${v(p && p.barcode)}"/></label>
         <label class="f">Країна<input name="country_of_origin" value="${v(p && p.country_of_origin)}"/></label>
         <label class="f">Термін придатності<input name="shelf_life" value="${v(p && p.shelf_life)}"/></label>
@@ -653,6 +660,10 @@ function productForm(p, cats) {
       <label class="f">Смаки (через кому)<input name="flavors" value="${v(p && p.flavors)}" placeholder="Полуниця, Шоколад, Ваніль"/></label>
       <label class="f">Фасовки (кожна з нового рядка)<textarea name="packs" placeholder="0.5 кг&#10;1 кг&#10;250 г">${packsText}</textarea></label>
       ${isNew ? '<label class="f">Головне фото за URL (необов\u02BCязково)<input name="image_url" placeholder="https://..."/></label>' : `<label class="inline"><input type="checkbox" name="in_stock" ${p.in_stock ? 'checked' : ''}/> Показувати на вітрині</label>`}
+    </div>
+    <div class="panel"><h2 style="margin-top:0">🔎 SEO</h2>
+      <label class="f">Ключові слова для пошуковиків (через кому)<textarea name="keywords" placeholder="купити цукерки, шоколад, льодяники">${v(p && p.keywords)}</textarea></label>
+      <p class="muted" style="font-size:.85rem;margin:6px 0 0">Не показуються на сторінці, але потрапляють у мета-теги для Google.</p>
     </div>
     ${media}
     <div class="row"><button class="btn">${isNew ? 'Створити товар' : 'Зберегти зміни'}</button>
