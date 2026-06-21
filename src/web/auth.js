@@ -19,8 +19,11 @@ export function verifyTelegramLogin(data) {
   const botToken = config.botToken || ''
   if (!botToken) return null
 
+  // Telegram підписує ЛИШЕ свої поля. Сторонні параметри (напр. next),
+  // які дописуються до data-auth-url, треба виключити, інакше хеш не співпаде.
+  const ALLOWED = ['auth_date', 'first_name', 'id', 'last_name', 'photo_url', 'username']
   const pairs = Object.keys(data)
-    .filter((k) => k !== 'hash')
+    .filter((k) => k !== 'hash' && ALLOWED.includes(k))
     .sort()
     .map((k) => `${k}=${data[k]}`)
   const dataCheckString = pairs.join('\n')
