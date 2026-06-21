@@ -181,6 +181,28 @@
     paint(input ? Number(input.value) || 0 : 0)
   })
 
+  // ---------- Каруселька банерів ----------
+  document.querySelectorAll('[data-carousel]').forEach(function (root) {
+    var track = root.querySelector('.hero__track')
+    var slides = root.querySelectorAll('.hero__slide')
+    if (!track || slides.length < 2) return
+    var dots = root.querySelectorAll('[data-car-dot]')
+    var i = 0
+    var timer
+    function go(n) {
+      i = (n + slides.length) % slides.length
+      track.style.transform = 'translateX(-' + i * 100 + '%)'
+      dots.forEach(function (d, di) { d.classList.toggle('is-on', di === i) })
+    }
+    function reset() { clearInterval(timer); timer = setInterval(function () { go(i + 1) }, 5000) }
+    var prev = root.querySelector('[data-car-prev]')
+    var next = root.querySelector('[data-car-next]')
+    if (prev) prev.addEventListener('click', function () { go(i - 1); reset() })
+    if (next) next.addEventListener('click', function () { go(i + 1); reset() })
+    dots.forEach(function (d, di) { d.addEventListener('click', function () { go(di); reset() }) })
+    reset()
+  })
+
   // ---------- ОБРАНЕ (localStorage) ----------
   var FAV_KEY = 'wow_fav'
   function favRead() {
