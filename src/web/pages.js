@@ -214,7 +214,7 @@ export function productPage({ product, related, reviews, categories = [], user =
 
   const specs = []
   if (p.weightG) specs.push(['Вага', weight])
-  if (p.unitsPerPack) specs.push(['Шт. в упако����і', `${p.unitsPerPack}`])
+  if (p.unitsPerPack) specs.push(['Шт. в упаковці', `${p.unitsPerPack}`])
   if (p.flavors && p.flavors.length) specs.push(['Смаки', p.flavors.join(', ')])
   if (p.countryOfOrigin) specs.push(['Країна', p.countryOfOrigin])
   if (p.shelfLife) specs.push(['Термін придатності', p.shelfLife])
@@ -313,7 +313,7 @@ export function productPage({ product, related, reviews, categories = [], user =
             <input class="qty__input" id="qtyInput" type="number" value="1" min="1" max="99" inputmode="numeric" />
             <button type="button" class="qty__btn" data-qty-inc aria-label="Більше">+</button>
           </div>
-          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає �� наявності</button>`}
+          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає в наявності</button>`}
           ${favBtn}
         </div>
         <a class="product__tg" href="${esc(botLink())}" rel="nofollow">✈️ Купити через Telegram</a>
@@ -445,7 +445,7 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
     authBlock = `
       <div class="tg-auth">
         <h2 class="tg-auth__title">Увійдіть через Telegram</h2>
-        <p class="muted small">Щоб ми могли підтвердити замо��лення та спілкуватися з вами у боті.</p>
+        <p class="muted small">Щоб ми могли підтвердити замовлення та спілкуватися з вами у боті.</p>
         <script async src="https://telegram.org/js/telegram-widget.js?22"
           data-telegram-login="${esc(widgetName)}"
           data-size="large"
