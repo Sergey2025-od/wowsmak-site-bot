@@ -317,8 +317,10 @@ export function productPage({ product, related, reviews, categories = [], user =
           ${favBtn}
         </div>
         <a class="product__tg" href="${esc(botLink())}" rel="nofollow">✈️ Купити через Telegram</a>
-        ${tabsHtml}
       </div>
+    </div>
+    <div class="container product__details">
+      ${tabsHtml}
     </div>
   </section>
   ${related && related.length ? section('Рекомендуємо також', productGrid(related)) : ''}`
