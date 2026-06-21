@@ -480,8 +480,8 @@ export async function getOrders(tgId, limit = 30) {
   return data
 }
 
-// Позиції замовлен��я (з перевіркою власника)
-// Приховати всю історію замовлень клієнта (нак��адні зникають з його кабінету)
+// Позиції замовлення (з перевіркою власника)
+// Приховати всю історію замовлень клієнта (накладні зникають з його кабінету)
 export async function hideCustomerOrders(tgId) {
   const { error } = await supabase
     .from('orders')
