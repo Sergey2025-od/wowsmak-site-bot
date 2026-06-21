@@ -50,7 +50,7 @@ function header(active, navCategories, activeCatId) {
       <a class="icon-btn" href="/favorites" id="favLink" aria-label="Обране" title="Обране">
         ♡<span class="cart-badge" id="favBadge" hidden>0</span>
       </a>
-      <a class="icon-btn account-link" href="/checkout" id="accountLink" aria-label="Кабінет" title="Увійти через Telegram">
+      <a class="icon-btn account-link" href="/account" id="accountLink" aria-label="Кабінет" title="Кабінет / Вхід через Telegram">
         👤<span class="account-name" id="accountName" hidden></span>
       </a>
       <a class="icon-btn cart-link" href="/cart" aria-label="Кошик">
@@ -71,7 +71,7 @@ function bottomNav(active) {
   ${item('/catalog', '🧺', 'Каталог')}
   ${item('/cart', '🛒', 'Кошик')}
   ${item('/favorites', '♡', 'Обране')}
-  ${item('/checkout', '👤', 'Профіль')}
+  ${item('/account', '👤', 'Профіль')}
 </nav>`
 }
 
