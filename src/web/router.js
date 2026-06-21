@@ -16,6 +16,7 @@ import {
   resolveCart,
   createWebOrder,
 } from './data.js'
+import { addReview, upsertCustomer } from '../db.js'
 import { readCart, writeCart, clearCart, addItem, setQty, removeItem, cartCount } from './cart.js'
 import { verifyTelegramLogin, setSession, clearSession, readSession, safeNext } from './auth.js'
 import {
@@ -130,15 +131,33 @@ export function createSiteRouter() {
       const id = idFromParam(req.params.id)
       const product = await getProductById(id)
       if (!product) return html(res, notFoundPage(), 404)
+      const user = readSession(req)
       const [related, reviews, categories] = await Promise.all([
         getRelatedProducts(product),
         getProductReviews(product.id),
         getCategories(),
       ])
-      html(res, productPage({ product, related, reviews, categories }))
+      html(res, productPage({ product, related, reviews, categories, user }))
     } catch (e) {
       next(e)
     }
+  })
+
+  // ---------- Залишити відгук (потрібен вхід через Telegram) ----------
+  router.post('/product/:id/review', async (req, res, next) => {
+    try {
+      const id = idFromParam(req.params.id)
+      const user = readSession(req)
+      if (!user) return res.redirect('/account')
+      const rating = Math.max(1, Math.min(5, Math.round(Number((req.body || {}).rating) || 0)))
+      const text = String((req.body || {}).text || '').trim().slice(0, 1000)
+      if (rating) {
+        const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || null
+        await upsertCustomer({ tgId: Number(user.id), username: user.username || null, fullName })
+        await addReview(Number(user.id), id, rating, text || null)
+      }
+      res.redirect(`/product/${id}#reviews`)
+    } catch (e) { next(e) }
   })
 
   // ---------- Операції з кошиком (JSON) ----------
