@@ -130,6 +130,7 @@ function shell(active, body, flash = '') {
   ${navItem('/admin', '\uD83D\uDCCA Дашборд', active)}
   ${navItem('/admin/products', '\uD83C\uDF6C Товари', active)}
   ${navItem('/admin/categories', '\uD83D\uDCC1 Категорії', active)}
+  ${navItem('/admin/banners', '\uD83D\uDDBC Банери', active)}
   ${navItem('/admin/orders', '\uD83E\uDDFE Замовлення', active)}
   ${navItem('/admin/earnings', '\uD83D\uDCB0 Прибуток', active)}
   ${navItem('/admin/stats', '\uD83D\uDCC8 Аналітика', active)}
@@ -415,6 +416,95 @@ export function createAdminRouter() {
     } catch (e) { back(res, '/admin/categories', null, e.message) }
   })
 
+  // ============ БАНЕРИ (головна / карусель) ============
+  router.get('/banners', async (req, res, next) => {
+    try {
+      const banners = await db.listAllBanners()
+      const card = (b) => {
+        const key = b ? b.id : 'new'
+        const action = b ? `/admin/banners/${b.id}` : '/admin/banners/new'
+        const prev = b && b.image_url ? imageUrl(b.image_url, { width: 300, crop: 'fit', format: 'png' }) : ''
+        return `<div class="panel">
+          <form method="post" action="${action}">
+            <div class="grid2">
+              <label class="f">Бейдж (напис зверху)<input name="badge" value="${b ? esc(b.badge || '') : ''}" placeholder="ТОП ТОВАРИ ТИЖНЯ"/></label>
+              <label class="f">Заголовок<input name="title" value="${b ? esc(b.title || '') : ''}" placeholder="до -25%"/></label>
+            </div>
+            <label class="f">Підзаголовок<input name="subtitle" value="${b ? esc(b.subtitle || '') : ''}" placeholder="на популярні снеки"/></label>
+            <div class="grid3">
+              <label class="f">Текст кнопки<input name="button_text" value="${b ? esc(b.button_text || '') : ''}" placeholder="Дивитися все"/></label>
+              <label class="f">Посилання кнопки<input name="button_link" value="${b ? esc(b.button_link || '') : ''}" placeholder="/catalog"/></label>
+              <label class="f">Колір фону<input name="bg_color" value="${b ? esc(b.bg_color || '') : ''}" placeholder="#5b2a86 (необов'язково)"/></label>
+            </div>
+            <div class="row">
+              <label class="f" style="flex:0 0 130px;margin:0">Порядок<input name="sort_order" type="number" value="${b ? (b.sort_order ?? 0) : 0}"/></label>
+              <label class="inline" style="margin:0"><input type="checkbox" name="is_active" ${!b || b.is_active ? 'checked' : ''}/> Активний</label>
+            </div>
+            <input type="hidden" name="image_url" id="bimg-${key}" value="${b ? esc(b.image_url || '') : ''}"/>
+            <div class="media"><img id="bprev-${key}" src="${prev}" alt="" style="display:${prev ? 'block' : 'none'};width:220px;height:104px;object-fit:contain;background:var(--panel2);border-radius:10px"/></div>
+            <div class="row">
+              <input type="file" accept="image/*" onchange="uploadBannerImg('${key}', this)" style="max-width:240px;color:var(--muted)"/>
+              <button class="btn">${b ? '💾 Зберегти' : '➕ Створити банер'}</button>
+            </div>
+          </form>
+          ${b ? `<form method="post" action="/admin/banners/${b.id}/delete" onsubmit="return confirm('Видалити банер?')" style="margin-top:10px"><button class="btn btn--danger btn--sm">Видалити</button></form>` : ''}
+        </div>`
+      }
+      const list = banners.length ? banners.map((b) => card(b)).join('') : '<p class="muted">Банерів ще немає. Створіть перший нижче.</p>'
+      const body = `<h1>Банери головної <span class="muted" style="font-size:16px">(${banners.length})</span></h1>
+      <p class="muted" style="margin:-8px 0 16px">Картинка банера + текст показуються на головній. Якщо банерів декілька — вони автоматично крутяться каруселлю. Порядок задається числом «Порядок».</p>
+      ${list}
+      <h2>➕ Новий банер</h2>
+      ${card(null)}
+      <script>
+      function uploadBannerImg(key, input){
+        var f=(input.files||[])[0]; if(!f) return;
+        var r=new FileReader();
+        r.onload=function(){
+          fetch('/admin/upload/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl:r.result})})
+            .then(function(x){return x.json()})
+            .then(function(j){ if(j.ok){ document.getElementById('bimg-'+key).value=j.publicId; var pv=document.getElementById('bprev-'+key); if(pv){pv.src=j.url; pv.style.display='block';} } else alert(j.error||'Помилка'); })
+            .catch(function(){ alert('Помилка завантаження'); });
+        };
+        r.readAsDataURL(f);
+      }
+      </script>`
+      html(res, shell('/admin/banners', body, flashFrom(req)))
+    } catch (e) { next(e) }
+  })
+
+  router.post('/banners/new', async (req, res) => {
+    try {
+      const b = req.body || {}
+      await db.createBanner({
+        badge: str(b.badge), title: str(b.title), subtitle: str(b.subtitle),
+        button_text: str(b.button_text), button_link: str(b.button_link),
+        bg_color: str(b.bg_color), image_url: str(b.image_url),
+        is_active: b.is_active === 'on' || b.is_active === 'true',
+      })
+      back(res, '/admin/banners', 'Банер створено')
+    } catch (e) { back(res, '/admin/banners', null, e.message) }
+  })
+
+  router.post('/banners/:id', async (req, res) => {
+    try {
+      const b = req.body || {}
+      await db.updateBanner(Number(req.params.id), {
+        badge: str(b.badge), title: str(b.title), subtitle: str(b.subtitle),
+        button_text: str(b.button_text), button_link: str(b.button_link),
+        bg_color: str(b.bg_color), image_url: str(b.image_url),
+        sort_order: num(b.sort_order) ?? 0,
+        is_active: b.is_active === 'on' || b.is_active === 'true',
+      })
+      back(res, '/admin/banners', 'Збережено')
+    } catch (e) { back(res, '/admin/banners', null, e.message) }
+  })
+
+  router.post('/banners/:id/delete', async (req, res) => {
+    try { await db.deleteBanner(Number(req.params.id)); back(res, '/admin/banners', 'Банер видалено') }
+    catch (e) { back(res, '/admin/banners', null, e.message) }
+  })
+
   // ============ ЗАМОВЛЕННЯ ============
   router.get('/orders', async (req, res, next) => {
     try {
@@ -643,7 +733,7 @@ function productForm(p, cats) {
         <label class="f">Ціна закупівлі, \u20B4<input name="cost_price" value="${v(p && p.cost_price)}"/></label>
         <label class="f">Залишок (шт.)<input name="stock" value="${v(p && p.stock)}" placeholder="порожньо = \u221E"/></label>
         <label class="f">Штук в упаковці<input name="units_per_pack" value="${v(p && p.units_per_pack)}"/></label>
-        <label class="f">Ре��ом. націнка, %<input name="rec_markup" value="${v(p && p.rec_markup)}"/></label>
+        <label class="f">Реком. націнка, %<input name="rec_markup" value="${v(p && p.rec_markup)}"/></label>
       </div>
     </div>
     <div class="panel"><h2 style="margin-top:0">Характеристики</h2>
