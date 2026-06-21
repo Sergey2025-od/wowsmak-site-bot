@@ -152,7 +152,34 @@
         galMain.src = t.getAttribute('data-src')
       })
     })
+    galMain.style.cursor = 'zoom-in'
+    galMain.addEventListener('click', function () {
+      var ov = document.createElement('div')
+      ov.className = 'lightbox'
+      var big = document.createElement('img')
+      big.className = 'lightbox__img'
+      big.src = galMain.src
+      ov.appendChild(big)
+      ov.addEventListener('click', function () { ov.remove() })
+      document.body.appendChild(ov)
+    })
   }
+
+  // ---------- Зірковий рейтинг (форма відгуку) ----------
+  document.querySelectorAll('[data-star-rate]').forEach(function (wrap) {
+    var input = wrap.querySelector('input[name="rating"]')
+    var starsEls = wrap.querySelectorAll('.star-rate__star')
+    function paint(val) {
+      starsEls.forEach(function (s) { s.classList.toggle('is-on', Number(s.getAttribute('data-val')) <= val) })
+    }
+    starsEls.forEach(function (s) {
+      var val = Number(s.getAttribute('data-val'))
+      s.addEventListener('click', function () { if (input) input.value = String(val); paint(val) })
+      s.addEventListener('mouseenter', function () { paint(val) })
+    })
+    wrap.addEventListener('mouseleave', function () { paint(input ? Number(input.value) || 0 : 0) })
+    paint(input ? Number(input.value) || 0 : 0)
+  })
 
   // ---------- ОБРАНЕ (localStorage) ----------
   var FAV_KEY = 'wow_fav'
