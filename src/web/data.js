@@ -141,15 +141,39 @@ export async function getProductKeywords(id) {
   }
 }
 
+// Банери для головної (стійко до відсутності таблиці)
+export async function getBanners() {
+  try {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw error
+    return (data || []).map((b) => ({
+      id: b.id,
+      badge: b.badge || '',
+      title: b.title || '',
+      subtitle: b.subtitle || '',
+      buttonText: b.button_text || '',
+      buttonLink: b.button_link || '',
+      bgColor: b.bg_color || '',
+      image: b.image_url ? imageUrl(b.image_url, { width: 900, crop: 'fit', format: 'png' }) : null,
+    }))
+  } catch {
+    return []
+  }
+}
+
 // Дані для головної: категорії, хіти, новинки, акції
 export async function getHomeData() {
-  const [categories, products] = await Promise.all([getCategories(), getShopProducts()])
+  const [categories, products, banners] = await Promise.all([getCategories(), getShopProducts(), getBanners()])
   const hits = [...products].sort((a, b) => b.orderCount - a.orderCount).slice(0, 8)
   const novelties = [...products]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 8)
   const sales = products.filter((p) => p.salePrice != null).slice(0, 8)
-  return { categories, products, hits, novelties, sales }
+  return { categories, products, hits, novelties, sales, banners }
 }
 
 // Відгуки товару (якщо таблиця існує)
