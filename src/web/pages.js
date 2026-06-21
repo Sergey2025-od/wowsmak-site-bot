@@ -296,15 +296,14 @@ export function productPage({ product, related, reviews, categories = [], user =
   <section class="section product">
     <div class="container product__grid">
       <div class="gallery">
-        ${badgesHtml}
         ${mainMedia}
         ${thumbs}
         ${video}
       </div>
       <div class="product__info">
-        ${p.category ? `<a class="product__cat" href="${categoryPath({ id: p.categoryId, title: p.category.title })}">${categoryIcon(p.category)} ${esc(p.category.title)}</a>` : ''}
+        ${badgesHtml}
         <h1 class="product__title">${esc(p.title)}</h1>
-        ${hasReviews ? `<div class="product__rating">${stars(rating)} <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
+        ${hasReviews ? `<div class="product__rating"><span class="product__star">★</span> <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
         ${statsHtml}
         <div class="product__price" id="productPrice" data-unit-price="${priceVal}">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
         ${packsHtml}
