@@ -8,7 +8,7 @@ export const supabase = createClient(config.supabaseUrl, config.supabaseServiceK
 
 const PRODUCT_FIELDS = 'id, category_id, title, description, full_description, price, sale_price, stock, weight_g, units_per_pack, flavors, packs, image_url, images, video_url, in_stock, sort_order, created_at, proteins, fats, carbs, calories, country_of_origin, shelf_life'
 // Поля для адміна: додатково ціна закупівлі та штрих-код (на вітрині не показуємо)
-const ADMIN_PRODUCT_FIELDS = `${PRODUCT_FIELDS}, cost_price, barcode, rec_markup`
+const ADMIN_PRODUCT_FIELDS = `${PRODUCT_FIELDS}, cost_price, barcode, rec_markup, keywords`
 
 // ---------- Категорії ----------
 export async function getCategories() {
@@ -316,6 +316,7 @@ export async function createProduct(fields) {
       calories: fields.calories ?? null,
       country_of_origin: fields.country_of_origin ?? null,
       shelf_life: fields.shelf_life ?? null,
+      keywords: fields.keywords ?? null,
     })
     .select()
     .single()
@@ -479,7 +480,7 @@ export async function getOrders(tgId, limit = 30) {
   return data
 }
 
-// Позиції замовлення (з перевіркою власника)
+// Позиції замовлен��я (з перевіркою власника)
 // Приховати всю історію замовлень клієнта (нак��адні зникають з його кабінету)
 export async function hideCustomerOrders(tgId) {
   const { error } = await supabase
