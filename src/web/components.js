@@ -45,7 +45,6 @@ export function productCard(p) {
     <h3 class="pcard__title"><a href="${esc(p.path)}">${esc(p.title)}</a></h3>
     ${weight ? `<div class="pcard__meta muted">${esc(weight)}</div>` : ''}
     ${rating}
-    ${p.description ? `<p class="pcard__desc">${esc(p.description)}</p>` : ''}
     <div class="pcard__foot">
       ${priceBlock(p)}
       ${addBtn}
