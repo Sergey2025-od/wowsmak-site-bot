@@ -27,7 +27,7 @@ const weightLabel = (p) =>
   !p.weightG ? '' : p.weightG >= 1000 ? `${String(p.weightG / 1000).replace(/\.0$/, '')} кг` : `${p.weightG} г`
 
 // ---------- Головна ----------
-export function homePage({ categories, hits, novelties, sales }) {
+export function homePage({ categories, hits, novelties, sales, banners = [] }) {
   const catCards = categories
     .map(
       (c) => `
@@ -38,7 +38,7 @@ export function homePage({ categories, hits, novelties, sales }) {
     )
     .join('')
 
-  const promo = `
+  const promoFallback = `
   <section class="promo-wrap"><div class="container">
     <div class="promo">
       <div class="promo__content">
@@ -51,21 +51,52 @@ export function homePage({ categories, hits, novelties, sales }) {
     </div>
   </div></section>`
 
-  const features = `
-  <section class="features-wrap"><div class="container features">
-    <div class="feature"><span class="feature__ico">🚚</span><div><strong>Швидка доставка</strong><span class="muted small">Новою Поштою по Україні</span></div></div>
-    <div class="feature"><span class="feature__ico">🍫</span><div><strong>Широкий асортимент</strong><span class="muted small">Сотні смаколиків</span></div></div>
-    <div class="feature"><span class="feature__ico">✅</span><div><strong>Якість</strong><span class="muted small">Свіжі товари</span></div></div>
-    <div class="feature"><span class="feature__ico">💳</span><div><strong>Зручна оплата</strong><span class="muted small">Карткою або при отриманні</span></div></div>
+  const heroSlides = banners
+    .map(
+      (b) => `
+      <div class="hero__slide"${b.bgColor ? ` style="background:${esc(b.bgColor)}"` : ''}>
+        <div class="hero__content">
+          ${b.badge ? `<span class="hero__badge">${esc(b.badge)}</span>` : ''}
+          ${b.title ? `<h2 class="hero__title">${esc(b.title)}</h2>` : ''}
+          ${b.subtitle ? `<p class="hero__sub">${esc(b.subtitle)}</p>` : ''}
+          ${b.buttonText ? `<a class="btn btn--light btn--lg" href="${esc(b.buttonLink || '/catalog')}">${esc(b.buttonText)} →</a>` : ''}
+        </div>
+        ${b.image ? `<div class="hero__media"><img src="${esc(b.image)}" alt="${esc(b.title || site.name)}" loading="eager" /></div>` : ''}
+      </div>`,
+    )
+    .join('')
+
+  const hero = banners.length
+    ? `
+  <section class="promo-wrap"><div class="container">
+    <div class="hero" data-carousel>
+      <div class="hero__track">${heroSlides}</div>
+      ${
+        banners.length > 1
+          ? `
+      <button class="hero__arrow hero__arrow--prev" type="button" data-car-prev aria-label="Назад">‹</button>
+      <button class="hero__arrow hero__arrow--next" type="button" data-car-next aria-label="Вперед">›</button>
+      <div class="hero__dots">${banners.map((_, i) => `<button class="hero__dot${i === 0 ? ' is-on' : ''}" type="button" data-car-dot="${i}" aria-label="Слайд ${i + 1}"></button>`).join('')}</div>`
+          : ''
+      }
+    </div>
   </div></section>`
+    : promoFallback
+
+  const benefits = `
+  <section class="section"><div class="container"><div class="benefits">
+    <div class="benefit"><span class="benefit__ico">🚚</span><div><strong>Безкоштовна доставка</strong><span>від 1200 ₴</span></div></div>
+    <div class="benefit"><span class="benefit__ico">🎁</span><div><strong>Бонуси за покупки</strong><span>до 10%</span></div></div>
+    <div class="benefit"><span class="benefit__ico">⚡</span><div><strong>Швидка доставка</strong><span>1-2 дні</span></div></div>
+  </div></div></section>`
 
   const body = `
-  ${promo}
-  ${section('Категорії', `<div class="cat-grid">${catCards}</div>`)}
-  ${features}
+  ${hero}
+  ${section('Категорії', `<div class="cat-grid">${catCards}</div>`, { link: { href: '/catalog', label: 'Усі категорії' } })}
   ${hits.length ? section('⭐ Хіти продажів', productGrid(hits), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
-  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
   ${novelties.length ? section('✨ Новинки', productGrid(novelties), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
+  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
+  ${benefits}
   ${seoTextBlock()}`
 
   return layout(body, {
