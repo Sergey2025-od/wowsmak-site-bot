@@ -10,6 +10,54 @@ const PRODUCT_FIELDS = 'id, category_id, title, description, full_description, p
 // Поля для адміна: додатково ціна закупівлі та штрих-код (на вітрині не показуємо)
 const ADMIN_PRODUCT_FIELDS = `${PRODUCT_FIELDS}, cost_price, barcode, rec_markup, keywords`
 
+// ---------- Банери головної (карусель) ----------
+export async function listBanners() {
+  try {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw error
+    return data || []
+  } catch {
+    return []
+  }
+}
+
+export async function listAllBanners() {
+  const { data, error } = await supabase.from('banners').select('*').order('sort_order')
+  if (error) throw error
+  return data || []
+}
+
+export async function createBanner(fields) {
+  const { data: last } = await supabase
+    .from('banners')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const sort_order = (last?.sort_order ?? 0) + 1
+  const { data, error } = await supabase
+    .from('banners')
+    .insert({ ...fields, sort_order })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateBanner(id, patch) {
+  const { error } = await supabase.from('banners').update(patch).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteBanner(id) {
+  const { error } = await supabase.from('banners').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ---------- Категорії ----------
 export async function getCategories() {
   const { data, error } = await supabase
