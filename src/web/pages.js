@@ -217,7 +217,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
 
   const specs = []
   if (p.weightG) specs.push(['Вага', weight])
-  if (p.unitsPerPack) specs.push(['Шт. в упаков��і', `${p.unitsPerPack}`])
+  if (p.unitsPerPack) specs.push(['Шт. в упако����і', `${p.unitsPerPack}`])
   if (p.flavors && p.flavors.length) specs.push(['Смаки', p.flavors.join(', ')])
   if (p.countryOfOrigin) specs.push(['Країна', p.countryOfOrigin])
   if (p.shelfLife) specs.push(['Термін придатності', p.shelfLife])
@@ -474,7 +474,7 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
 }
 
 // ---------- Кабінет / Профіль ----------
-export function accountPage({ user = null }) {
+export function accountPage({ user = null, isAdmin = false }) {
   const widgetName = site.botUsername
   let body
   if (user) {
@@ -486,6 +486,7 @@ export function accountPage({ user = null }) {
       <div class="tg-auth tg-auth--in">
         <span class="tg-auth__badge">✅ Ви увійшли як <strong>${esc(uname)}</strong>${user.username ? ` (@${esc(user.username)})` : ''}</span>
       </div>
+      ${isAdmin ? `<div class="account__links" style="margin-bottom:10px"><a class="btn btn--primary" href="/admin">🛠 Адмін-панель</a></div>` : ''}
       <div class="account__links">
         <a class="btn btn--primary" href="/catalog">До каталогу</a>
         <a class="btn btn--ghost" href="/favorites">Обране</a>
