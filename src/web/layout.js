@@ -127,7 +127,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=3" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=4" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
@@ -146,7 +146,7 @@ export function layout(content, opts = {}) {
     </div>
     <button class="theme-switch__toggle" id="themeToggle" type="button" aria-label="Змінити дизайн">🎨</button>
   </div>
-  <script src="/assets/js/site.js?v=3" defer></script>
+  <script src="/assets/js/site.js?v=4" defer></script>
 </body>
 </html>`
 }
