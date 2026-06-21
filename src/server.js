@@ -52,6 +52,8 @@ app.locals.botApi = bot.api
 
 // Публічний сайт магазину — монтується ОСТАННІМ (обробляє '/', каталог, кошик тощо)
 app.use(express.urlencoded({ extended: true }))
+// Великі медіа-завантаження веб-адмінки (фото/відео) — окремий JSON-парсер з більшим лімітом
+app.use('/admin/upload', express.json({ limit: '160mb' }))
 app.use(express.json())
 app.use('/', createSiteRouter())
 
