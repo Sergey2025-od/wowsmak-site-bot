@@ -117,6 +117,30 @@ export async function getProductById(id) {
   return toClientProduct(data, counts[data.id] || 0)
 }
 
+// Лічильник переглядів товару: інкремент + повернення нового значення (RPC).
+// Якщо міграція ще не виконана — тихо повертає null (лічильник просто не показується).
+export async function incrementProductViews(id) {
+  try {
+    const { data, error } = await supabase.rpc('increment_product_views', { pid: Number(id) })
+    if (error) throw error
+    const v = Number(data)
+    return Number.isFinite(v) ? v : null
+  } catch {
+    return null
+  }
+}
+
+// Приховані SEO-ключові слова товару (для мета-тегів). Стійко до відсутності колонки.
+export async function getProductKeywords(id) {
+  try {
+    const { data, error } = await supabase.from('products').select('keywords').eq('id', id).maybeSingle()
+    if (error) throw error
+    return data && data.keywords ? data.keywords : null
+  } catch {
+    return null
+  }
+}
+
 // Дані для головної: категорії, хіти, новинки, акції
 export async function getHomeData() {
   const [categories, products] = await Promise.all([getCategories(), getShopProducts()])
