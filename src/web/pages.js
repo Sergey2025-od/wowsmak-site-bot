@@ -245,13 +245,14 @@ export function productPage({ product, related, reviews, categories = [], user =
     ? `<form class="review-form" method="post" action="/product/${p.id}/review" style="margin-top:16px;padding-top:16px;border-top:1px solid #8884">
         <h4 style="margin:0 0 10px">Залишити відгук</h4>
         <label style="display:block;margin-bottom:8px">Оцінка:
-          <select name="rating" style="padding:7px 10px;border-radius:9px;border:1px solid #8888;background:transparent;color:inherit;font:inherit">
-            <option value="5">★★★★★ (5)</option>
-            <option value="4">★★★★ (4)</option>
-            <option value="3">★★★ (3)</option>
-            <option value="2">★★ (2)</option>
-            <option value="1">★ (1)</option>
-          </select>
+          <div class="star-rate" data-star-rate>
+            <input type="hidden" name="rating" value="5" />
+            <button type="button" class="star-rate__star is-on" data-val="1" aria-label="1 зірка">★</button>
+            <button type="button" class="star-rate__star is-on" data-val="2" aria-label="2 зірки">★</button>
+            <button type="button" class="star-rate__star is-on" data-val="3" aria-label="3 зірки">★</button>
+            <button type="button" class="star-rate__star is-on" data-val="4" aria-label="4 зірки">★</button>
+            <button type="button" class="star-rate__star is-on" data-val="5" aria-label="5 зірок">★</button>
+          </div>
         </label>
         <textarea name="text" rows="3" maxlength="1000" placeholder="Ваші враження про товар…" style="width:100%;padding:10px;border-radius:10px;border:1px solid #8888;background:transparent;color:inherit;font:inherit"></textarea>
         <button class="btn btn--primary" type="submit" style="margin-top:10px">Надіслати відгук</button>
