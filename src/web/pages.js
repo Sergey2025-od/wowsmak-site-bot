@@ -179,7 +179,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
 }
 
 // ---------- Картка товару ----------
-export function productPage({ product, related, reviews, categories = [] }) {
+export function productPage({ product, related, reviews, categories = [], user = null }) {
   const p = product
   const crumbs = [
     { name: 'Головна', url: '/' },
@@ -203,8 +203,9 @@ export function productPage({ product, related, reviews, categories = [] }) {
     : ''
 
   const n = Math.abs(Number(p.id) || 1)
-  const rating = reviews && reviews.count ? reviews.avg : Math.round((4.6 + (n % 5) * 0.1) * 10) / 10
-  const ratingCount = reviews && reviews.count ? reviews.count : 40 + ((n * 37) % 260)
+  const hasReviews = !!(reviews && reviews.count)
+  const rating = hasReviews ? reviews.avg : null
+  const ratingCount = hasReviews ? reviews.count : 0
   const viewers = 6 + (n * 3) % 18
   const soldToday = p.soldToday != null ? p.soldToday : Math.max(3, Math.round((p.orderCount || 0) / 3) + (n % 7))
   const weight = weightLabel(p)
@@ -235,7 +236,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
     ? `<table class="specs">${compose.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table>`
     : '<p class="muted">Склад та поживність уточнюються.</p>'
 
-  const reviewsList =
+  const reviewsItems =
     reviews && reviews.count
       ? `<div class="reviews">${reviews.reviews
           .map(
@@ -244,6 +245,23 @@ export function productPage({ product, related, reviews, categories = [] }) {
           )
           .join('')}</div>`
       : '<p class="muted">Відгуків поки немає. Будьте першим!</p>'
+  const reviewForm = user
+    ? `<form class="review-form" method="post" action="/product/${p.id}/review" style="margin-top:16px;padding-top:16px;border-top:1px solid #8884">
+        <h4 style="margin:0 0 10px">Залишити відгук</h4>
+        <label style="display:block;margin-bottom:8px">Оцінка:
+          <select name="rating" style="padding:7px 10px;border-radius:9px;border:1px solid #8888;background:transparent;color:inherit;font:inherit">
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★ (4)</option>
+            <option value="3">★★★ (3)</option>
+            <option value="2">★★ (2)</option>
+            <option value="1">★ (1)</option>
+          </select>
+        </label>
+        <textarea name="text" rows="3" maxlength="1000" placeholder="Ваші враження про товар…" style="width:100%;padding:10px;border-radius:10px;border:1px solid #8888;background:transparent;color:inherit;font:inherit"></textarea>
+        <button class="btn btn--primary" type="submit" style="margin-top:10px">Надіслати відгук</button>
+      </form>`
+    : `<p class="muted" style="margin-top:16px;padding-top:16px;border-top:1px solid #8884">Щоб залишити відгук, <a href="/account">увійдіть через Telegram</a>.</p>`
+  const reviewsList = reviewsItems + reviewForm
 
   const descHtml = p.fullDescription || p.description
     ? `<p>${esc(p.fullDescription || p.description)}</p>`
@@ -253,7 +271,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
     { id: 'desc', label: 'Опис', html: descHtml },
     { id: 'compose', label: 'Склад', html: composeTable },
     { id: 'specs', label: 'Характеристики', html: specsTable },
-    { id: 'reviews', label: `Відгуки (${ratingCount})`, html: reviewsList },
+    { id: 'reviews', label: ratingCount ? `Відгуки (${ratingCount})` : 'Відгуки', html: reviewsList },
   ]
   const tabsHtml = `
   <div class="tabs" id="productTabs">
@@ -289,7 +307,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
       <div class="product__info">
         ${p.category ? `<a class="product__cat" href="${categoryPath({ id: p.categoryId, title: p.category.title })}">${categoryIcon(p.category)} ${esc(p.category.title)}</a>` : ''}
         <h1 class="product__title">${esc(p.title)}</h1>
-        <div class="product__rating">${stars(rating)} <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>
+        ${hasReviews ? `<div class="product__rating">${stars(rating)} <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
         <div class="product__stats">
           <span class="stat">👁 Зараз дивиться: <strong>${viewers}</strong></span>
           <span class="stat">🔥 Куплено сьогодні: <strong>${soldToday}</strong></span>
@@ -302,7 +320,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
             <input class="qty__input" id="qtyInput" type="number" value="1" min="1" max="99" inputmode="numeric" />
             <button type="button" class="qty__btn" data-qty-inc aria-label="Більше">+</button>
           </div>
-          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає в наявності</button>`}
+          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає �� наявності</button>`}
           ${favBtn}
         </div>
         <a class="product__tg" href="${esc(botLink())}" rel="nofollow">✈️ Купити через Telegram</a>
