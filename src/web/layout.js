@@ -127,7 +127,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=4" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=5" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
@@ -140,7 +140,7 @@ export function layout(content, opts = {}) {
     <div class="theme-switch__panel">
       <h4>Оберіть дизайн</h4>
       <p>Три варіанти — обери, що подобається</p>
-      <button class="theme-opt" data-theme-set="1" type="button"><span class="theme-opt__sw theme-opt__sw--1"></span><span>Помаранчева<small>Темна (як референс)</small></span></button>
+      <button class="theme-opt" data-theme-set="1" type="button"><span class="theme-opt__sw theme-opt__sw--1"></span><span>Помаранчева<small>Темна</small></span></button>
       <button class="theme-opt" data-theme-set="2" type="button"><span class="theme-opt__sw theme-opt__sw--2"></span><span>Неон<small>Темна рожева</small></span></button>
       <button class="theme-opt" data-theme-set="3" type="button"><span class="theme-opt__sw theme-opt__sw--3"></span><span>Цукеркова<small>Світла</small></span></button>
     </div>
