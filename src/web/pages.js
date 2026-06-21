@@ -217,7 +217,7 @@ export function productPage({ product, related, reviews, categories = [] }) {
 
   const specs = []
   if (p.weightG) specs.push(['Вага', weight])
-  if (p.unitsPerPack) specs.push(['Шт. в упаковці', `${p.unitsPerPack}`])
+  if (p.unitsPerPack) specs.push(['Шт. в упаков��і', `${p.unitsPerPack}`])
   if (p.flavors && p.flavors.length) specs.push(['Смаки', p.flavors.join(', ')])
   if (p.countryOfOrigin) specs.push(['Країна', p.countryOfOrigin])
   if (p.shelfLife) specs.push(['Термін придатності', p.shelfLife])
@@ -470,6 +470,63 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
   return layout(body, {
     active: '/checkout',
     meta: { title: 'Оформлення замовлення', canonical: '/checkout', noindex: true },
+  })
+}
+
+// ---------- Кабінет / Профіль ----------
+export function accountPage({ user = null }) {
+  const widgetName = site.botUsername
+  let body
+  if (user) {
+    const uname = user.first_name || user.username || 'Telegram'
+    body = `
+  <section class="section">
+    <div class="container account">
+      <h1 class="page-title">Мій кабінет</h1>
+      <div class="tg-auth tg-auth--in">
+        <span class="tg-auth__badge">✅ Ви увійшли як <strong>${esc(uname)}</strong>${user.username ? ` (@${esc(user.username)})` : ''}</span>
+      </div>
+      <div class="account__links">
+        <a class="btn btn--primary" href="/catalog">До каталогу</a>
+        <a class="btn btn--ghost" href="/favorites">Обране</a>
+        <a class="btn btn--ghost" href="/cart">Кошик</a>
+        <a class="btn btn--ghost" href="/auth/logout?next=/account">Вийти</a>
+      </div>
+      <p class="muted small">Менеджер пише вам у Telegram щодо ваших замовлень.</p>
+    </div>
+  </section>`
+  } else if (widgetName) {
+    body = `
+  <section class="section">
+    <div class="container account">
+      <h1 class="page-title">Вхід до кабінету</h1>
+      <div class="tg-auth">
+        <h2 class="tg-auth__title">Увійдіть через Telegram</h2>
+        <p class="muted small">Щоб зберігати контакти та швидше оформлювати замовлення.</p>
+        <script async src="https://telegram.org/js/telegram-widget.js?22"
+          data-telegram-login="${esc(widgetName)}"
+          data-size="large"
+          data-radius="12"
+          data-request-access="write"
+          data-auth-url="/auth/telegram/callback?next=/account"></script>
+      </div>
+      <p class="muted small">Не обов'язково — кошик і обране працюють без входу.</p>
+    </div>
+  </section>`
+  } else {
+    body = `
+  <section class="section">
+    <div class="container account empty-state">
+      <div class="empty-state__emoji">👤</div>
+      <h1>Кабінет</h1>
+      <p class="muted">Вхід через Telegram тимчасово недоступний.</p>
+      <a class="btn btn--primary" href="/catalog">До каталогу</a>
+    </div>
+  </section>`
+  }
+  return layout(body, {
+    active: '/account',
+    meta: { title: 'Мій кабінет', canonical: '/account', noindex: true },
   })
 }
 
