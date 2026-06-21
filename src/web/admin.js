@@ -9,7 +9,7 @@ import { Router } from 'express'
 import express from 'express'
 import { config } from '../config.js'
 import * as db from '../db.js'
-import { imageUrl, uploadImage } from '../cloudinary.js'
+import { imageUrl, uploadImage, uploadVideo, videoUrl } from '../cloudinary.js'
 import { price, effectivePrice, parsePacks, flavorList } from '../format.js'
 import { readSession } from './auth.js'
 import { esc } from './util.js'
@@ -36,6 +36,16 @@ function parsePacksInput(text) {
     .map((s) => s.trim())
     .filter(Boolean)
     .map((label) => ({ label, price: null }))
+}
+
+// Розбір списку фото (JSON-масив public_id / URL) з форми. Максимум 10.
+function parseImagesInput(v) {
+  try {
+    const a = JSON.parse(v || '[]')
+    return Array.isArray(a) ? a.filter(Boolean).map(String).slice(0, 10) : []
+  } catch {
+    return []
+  }
 }
 
 // ---------- Статуси замовлень ----------
@@ -247,7 +257,15 @@ export function createAdminRouter() {
         country_of_origin: str(b.country_of_origin), shelf_life: str(b.shelf_life),
       }
       const created = await db.createProduct(fields)
-      if (str(b.image_url)) { try { await db.addProductImage(created.id, str(b.image_url)) } catch {} }
+      const imgs = parseImagesInput(b.images_json)
+      const vid = str(b.video_url)
+      if (imgs.length || vid) {
+        await db.supabase.from('products').update({
+          image_url: imgs[0] ?? null, images: imgs.slice(1), video_url: vid,
+        }).eq('id', created.id)
+      } else if (str(b.image_url)) {
+        try { await db.addProductImage(created.id, str(b.image_url)) } catch {}
+      }
       back(res, `/admin/products/${created.id}`, 'Товар створено')
     } catch (e) { back(res, '/admin/products/new', null, e.message) }
   })
@@ -275,6 +293,10 @@ export function createAdminRouter() {
         carbs: num(b.carbs), calories: num(b.calories), country_of_origin: str(b.country_of_origin),
         shelf_life: str(b.shelf_life), in_stock: b.in_stock === 'on' || b.in_stock === 'true',
       }
+      const imgs = parseImagesInput(b.images_json)
+      patch.image_url = imgs[0] ?? null
+      patch.images = imgs.slice(1)
+      patch.video_url = str(b.video_url)
       const { error } = await db.supabase.from('products').update(patch).eq('id', id)
       if (error) throw error
       back(res, `/admin/products/${id}`, 'Зміни збережено')
@@ -287,40 +309,26 @@ export function createAdminRouter() {
     catch (e) { back(res, `/admin/products/${req.params.id}`, null, e.message) }
   })
 
-  // Додати фото за URL
-  router.post('/products/:id/image-url', async (req, res) => {
-    try {
-      const url = str((req.body || {}).url)
-      if (!url) return back(res, `/admin/products/${req.params.id}`, null, 'Вкажіть URL зображення')
-      await db.addProductImage(Number(req.params.id), url)
-      back(res, `/admin/products/${req.params.id}`, 'Фото додано')
-    } catch (e) { back(res, `/admin/products/${req.params.id}`, null, e.message) }
-  })
-
-  // Завантажити фото файлом (через Cloudinary). Приймає JSON { dataUrl }.
-  router.post('/products/:id/image-file', express.json({ limit: '16mb' }), async (req, res) => {
+  // Завантажити фото файлом у Cloudinary (без прив'язки до товару). Повертає public_id + URL прев'ю.
+  router.post('/upload/image', express.json({ limit: '16mb' }), async (req, res) => {
     try {
       const dataUrl = (req.body || {}).dataUrl
       if (!dataUrl) return res.status(400).json({ ok: false, error: 'Немає файлу' })
-      if (!config.cloudinary.cloudName) return res.status(400).json({ ok: false, error: 'Cloudinary не налаштовано (CLOUDINARY_*). Додайте фото за URL.' })
+      if (!config.cloudinary.cloudName) return res.status(400).json({ ok: false, error: 'Cloudinary не налаштовано: додайте CLOUDINARY_* або вставте фото за URL.' })
       const publicId = await uploadImage(dataUrl)
-      await db.addProductImage(Number(req.params.id), publicId)
-      res.json({ ok: true })
+      res.json({ ok: true, publicId, url: imageUrl(publicId, { width: 200, crop: 'fit', format: 'png' }) })
     } catch (e) { res.status(500).json({ ok: false, error: e.message }) }
   })
 
-  // Встановити / змінити відео (URL або Cloudinary public_id)
-  router.post('/products/:id/video', async (req, res) => {
+  // Завантажити відео файлом у Cloudinary. Повертає public_id + URL.
+  router.post('/upload/video', express.json({ limit: '160mb' }), async (req, res) => {
     try {
-      await db.updateProductField(Number(req.params.id), 'video_url', str((req.body || {}).url))
-      back(res, `/admin/products/${req.params.id}`, 'Відео оновлено')
-    } catch (e) { back(res, `/admin/products/${req.params.id}`, null, e.message) }
-  })
-
-  // Очистити всі медіа
-  router.post('/products/:id/media-clear', async (req, res) => {
-    try { await db.clearProductMedia(Number(req.params.id)); back(res, `/admin/products/${req.params.id}`, 'Медіа очищено') }
-    catch (e) { back(res, `/admin/products/${req.params.id}`, null, e.message) }
+      const dataUrl = (req.body || {}).dataUrl
+      if (!dataUrl) return res.status(400).json({ ok: false, error: 'Немає файлу' })
+      if (!config.cloudinary.cloudName) return res.status(400).json({ ok: false, error: 'Cloudinary не налаштовано: додайте CLOUDINARY_*.' })
+      const publicId = await uploadVideo(dataUrl)
+      res.json({ ok: true, publicId, url: videoUrl(publicId) })
+    } catch (e) { res.status(500).json({ ok: false, error: e.message }) }
   })
 
   // ============ КАТЕГОРІЇ ============
@@ -336,8 +344,16 @@ export function createAdminRouter() {
           <label class="inline" style="margin:0"><input type="checkbox" name="is_active" ${c.is_active ? 'checked' : ''}/> Активна</label>
           <button class="btn btn--sm">Зберегти</button>
         </form></td>
+        <td>
+          <form method="post" action="/admin/categories/${c.id}/image" id="catimgform-${c.id}"><input type="hidden" name="image_url" id="catimg-${c.id}" value="${esc(c.image_url || '')}"/></form>
+          <div class="row">
+            ${c.image_url ? `<img src="${esc(imageUrl(c.image_url, { width: 80, crop: 'fit', format: 'png' }))}" style="width:40px;height:40px;border-radius:8px;object-fit:contain;background:var(--panel2)"/>` : '<span class="muted">\u2014</span>'}
+            <input type="file" accept="image/*" onchange="uploadCatIcon(${c.id}, this)" style="max-width:120px;color:var(--muted)"/>
+            ${c.image_url ? `<button type="button" class="btn btn--sm btn--ghost" onclick="removeCatIcon(${c.id})">Прибрати</button>` : ''}
+          </div>
+        </td>
         <td><form method="post" action="/admin/categories/${c.id}/delete" onsubmit="return confirm('Видалити категорію? Товари залишаться без категорії.')"><button class="btn btn--sm btn--danger">Видалити</button></form></td></tr>`).join('')
-        : `<tr><td colspan="3" class="muted">Категорій ще немає</td></tr>`
+        : `<tr><td colspan="4" class="muted">Категорій ще немає</td></tr>`
       const body = `<h1>Категорії <span class="muted" style="font-size:16px">(${cats.length})</span></h1>
       <div class="panel"><h2 style="margin-top:0">\u2795 Нова категорія</h2>
         <form method="post" action="/admin/categories/new" class="row">
@@ -345,7 +361,21 @@ export function createAdminRouter() {
           <input name="title" placeholder="Назва категорії" required style="flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px"/>
           <button class="btn">Створити</button>
         </form></div>
-      <div class="panel"><table><thead><tr><th>ID</th><th>Категорія</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+      <div class="panel"><table><thead><tr><th>ID</th><th>Категорія</th><th>Іконка</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <script>
+        function removeCatIcon(id){ document.getElementById('catimg-'+id).value=''; document.getElementById('catimgform-'+id).submit(); }
+        function uploadCatIcon(id, input){
+          var f = (input.files||[])[0]; if(!f) return;
+          var r = new FileReader();
+          r.onload = function(){
+            fetch('/admin/upload/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl:r.result})})
+              .then(function(resp){return resp.json()})
+              .then(function(j){ if(j.ok){ document.getElementById('catimg-'+id).value=j.publicId; document.getElementById('catimgform-'+id).submit(); } else alert(j.error||'Помилка'); })
+              .catch(function(){ alert('Помилка завантаження'); });
+          };
+          r.readAsDataURL(f);
+        }
+      </script>`
       html(res, shell('/admin/categories', body, flashFrom(req)))
     } catch (e) { next(e) }
   })
@@ -375,6 +405,14 @@ export function createAdminRouter() {
   router.post('/categories/:id/delete', async (req, res) => {
     try { await db.deleteCategory(Number(req.params.id)); back(res, '/admin/categories', 'Категорію видалено') }
     catch (e) { back(res, '/admin/categories', null, e.message) }
+  })
+
+  // Змінити іконку (зображення) категорії
+  router.post('/categories/:id/image', async (req, res) => {
+    try {
+      await db.updateCategoryField(Number(req.params.id), 'image_url', str((req.body || {}).image_url))
+      back(res, '/admin/categories', 'Іконку категорії оновлено')
+    } catch (e) { back(res, '/admin/categories', null, e.message) }
   })
 
   // ============ ЗАМОВЛЕННЯ ============
@@ -579,7 +617,7 @@ function productForm(p, cats) {
   ).join('')
   const packsText = p ? parsePacks(p).map((x) => x.label).join('\n') : ''
   const action = isNew ? '/admin/products/new' : `/admin/products/${p.id}`
-  const media = isNew ? '' : mediaBlock(p)
+  const media = mediaUploader(p)
   return `<h1>${isNew ? '\u2795 Новий товар' : `\u270F\uFE0F Товар #${p.id}`}</h1>
   <div class="row" style="margin-bottom:14px"><a href="/admin/products">\u2190 До списку</a></div>
   <form method="post" action="${action}">
@@ -598,7 +636,7 @@ function productForm(p, cats) {
         <label class="f">Ціна закупівлі, \u20B4<input name="cost_price" value="${v(p && p.cost_price)}"/></label>
         <label class="f">Залишок (шт.)<input name="stock" value="${v(p && p.stock)}" placeholder="порожньо = \u221E"/></label>
         <label class="f">Штук в упаковці<input name="units_per_pack" value="${v(p && p.units_per_pack)}"/></label>
-        <label class="f">Реком. націнка, %<input name="rec_markup" value="${v(p && p.rec_markup)}"/></label>
+        <label class="f">Ре��ом. націнка, %<input name="rec_markup" value="${v(p && p.rec_markup)}"/></label>
       </div>
     </div>
     <div class="panel"><h2 style="margin-top:0">Характеристики</h2>
@@ -616,11 +654,12 @@ function productForm(p, cats) {
       <label class="f">Фасовки (кожна з нового рядка)<textarea name="packs" placeholder="0.5 кг&#10;1 кг&#10;250 г">${packsText}</textarea></label>
       ${isNew ? '<label class="f">Головне фото за URL (необов\u02BCязково)<input name="image_url" placeholder="https://..."/></label>' : `<label class="inline"><input type="checkbox" name="in_stock" ${p.in_stock ? 'checked' : ''}/> Показувати на вітрині</label>`}
     </div>
+    ${media}
     <div class="row"><button class="btn">${isNew ? 'Створити товар' : 'Зберегти зміни'}</button>
     ${isNew ? '' : `<a class="btn btn--ghost" href="/product/${p.id}" target="_blank">Переглянути на сайті</a>`}</div>
   </form>
   ${isNew ? '' : `<form method="post" action="/admin/products/${p.id}/delete" onsubmit="return confirm('Видалити товар назавжди?')" style="margin-top:14px"><button class="btn btn--danger">\uD83D\uDDD1 Видалити товар</button></form>`}
-  ${media}`
+`
 }
 
 // Блок медіа (тільки для існуючого товару)
@@ -661,5 +700,104 @@ function mediaBlock(p) {
         };
         r.readAsDataURL(f);
       }
+    </script></div>`
+}
+
+// ============ Завантажувач медіа (до 10 фото + відео) ============
+function mediaUploader(p) {
+  const initial = []
+  if (p && p.image_url) initial.push({ id: p.image_url, url: imageUrl(p.image_url, { width: 200, crop: 'fit', format: 'png' }) })
+  if (p && Array.isArray(p.images)) for (const im of p.images) initial.push({ id: im, url: imageUrl(im, { width: 200, crop: 'fit', format: 'png' }) })
+  const initJson = JSON.stringify(initial).replace(/</g, '\\u003c')
+  const ids = initial.map((m) => m.id)
+  const vid = p && p.video_url ? p.video_url : ''
+  const vidSrc = vid ? videoUrl(vid) : ''
+  return `<div class="panel"><h2 style="margin-top:0">🖼 Фото та відео</h2>
+    <style>
+      .mwrap{position:relative;width:96px;height:96px}
+      .mwrap img{width:96px;height:96px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+      .mdel{position:absolute;top:4px;right:4px;background:#ef4444;color:#fff;border:0;width:22px;height:22px;border-radius:50%;cursor:pointer;font-weight:700;line-height:1}
+      .mkmain{position:absolute;top:4px;left:4px;background:#000a;color:#fff;border:0;border-radius:6px;cursor:pointer;font-size:11px;padding:2px 6px}
+      .mainbadge{position:absolute;top:4px;left:4px;background:var(--acc);color:#1a1003;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;z-index:1}
+    </style>
+    <p class="muted" style="font-size:13px">До 10 фото. Перше — головне (★). Усе збережеться разом із товаром.</p>
+    <div class="media" id="gallery"></div>
+    <div class="row" style="margin-top:8px">
+      <input type="file" id="imgInput" accept="image/*" multiple style="max-width:230px;color:var(--muted)"/>
+      <button type="button" class="btn btn--sm" onclick="addImages()">➕ Додати фото</button>
+      <span class="muted" id="imgStatus" style="font-size:13px"></span>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input id="imgUrlInput" placeholder="… або вставте URL фото" style="flex:1;min-width:160px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:9px"/>
+      <button type="button" class="btn btn--sm btn--ghost" onclick="addImageUrl()">Додати за URL</button>
+    </div>
+    <div style="margin-top:16px">
+      <div class="muted" style="font-size:13px;margin-bottom:6px">Відео товару</div>
+      <video id="vidPreview" controls style="max-width:280px;border-radius:10px;display:${vidSrc ? 'block' : 'none'};margin-bottom:8px" src="${esc(vidSrc)}"></video>
+      <div class="row">
+        <input type="file" id="vidInput" accept="video/*" style="max-width:230px;color:var(--muted)"/>
+        <button type="button" class="btn btn--sm" onclick="addVideo()">⬆️ Завантажити відео</button>
+        <button type="button" class="btn btn--sm btn--danger" onclick="clearVideo()">Прибрати відео</button>
+        <span class="muted" id="vidStatus" style="font-size:13px"></span>
+      </div>
+    </div>
+    <input type="hidden" name="images_json" id="images_json" value="${esc(JSON.stringify(ids))}"/>
+    <input type="hidden" name="video_url" id="video_url" value="${esc(vid)}"/>
+    <script>
+      var media = ${initJson};
+      function syncImages(){ document.getElementById('images_json').value = JSON.stringify(media.map(function(m){return m.id})); renderGallery(); }
+      function renderGallery(){
+        var g = document.getElementById('gallery');
+        if(!media.length){ g.innerHTML = '<span class="muted">Фото ще немає</span>'; return; }
+        var h = '';
+        for(var i=0;i<media.length;i++){
+          var m = media[i];
+          var tag = i===0 ? '<span class="mainbadge">★</span>' : '<button type="button" class="mkmain" title="Зробити головним" onclick="makeMain('+i+')">★</button>';
+          h += '<div class="mwrap">'+tag+'<img src="'+m.url+'"/><button type="button" class="mdel" title="Видалити" onclick="removeImg('+i+')">×</button></div>';
+        }
+        g.innerHTML = h;
+      }
+      function makeMain(i){ var m = media.splice(i,1)[0]; media.unshift(m); syncImages(); }
+      function removeImg(i){ media.splice(i,1); syncImages(); }
+      function addImageUrl(){
+        var el = document.getElementById('imgUrlInput'); var u = (el.value||'').trim();
+        if(!u) return;
+        if(media.length>=10){ alert('Максимум 10 фото'); return; }
+        media.push({id:u,url:u}); el.value=''; syncImages();
+      }
+      function readFileData(file){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=rej; r.readAsDataURL(file); }); }
+      async function addImages(){
+        var inp = document.getElementById('imgInput');
+        var files = Array.prototype.slice.call(inp.files||[]);
+        if(!files.length){ alert('Оберіть фото'); return; }
+        var st = document.getElementById('imgStatus');
+        for(var k=0;k<files.length;k++){
+          if(media.length>=10){ alert('Максимум 10 фото'); break; }
+          st.textContent = 'Завантаження ' + (k+1) + '/' + files.length + '…';
+          try{
+            var dataUrl = await readFileData(files[k]);
+            var resp = await fetch('/admin/upload/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl:dataUrl})});
+            var j = await resp.json();
+            if(j.ok){ media.push({id:j.publicId,url:j.url}); syncImages(); }
+            else { alert(j.error||'Помилка'); break; }
+          }catch(e){ alert('Помилка завантаження фото'); break; }
+        }
+        st.textContent = ''; inp.value = '';
+      }
+      async function addVideo(){
+        var inp = document.getElementById('vidInput'); var f = (inp.files||[])[0];
+        if(!f){ alert('Оберіть відео'); return; }
+        var st = document.getElementById('vidStatus'); st.textContent = 'Завантаження відео…';
+        try{
+          var dataUrl = await readFileData(f);
+          var resp = await fetch('/admin/upload/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl:dataUrl})});
+          var j = await resp.json();
+          if(j.ok){ document.getElementById('video_url').value = j.publicId; var v = document.getElementById('vidPreview'); v.src = j.url; v.style.display='block'; st.textContent = '✅ Завантажено'; }
+          else { st.textContent=''; alert(j.error||'Помилка'); }
+        }catch(e){ st.textContent=''; alert('Помилка завантаження відео'); }
+        inp.value = '';
+      }
+      function clearVideo(){ document.getElementById('video_url').value=''; var v=document.getElementById('vidPreview'); v.src=''; v.style.display='none'; document.getElementById('vidStatus').textContent=''; }
+      renderGallery();
     </script></div>`
 }
