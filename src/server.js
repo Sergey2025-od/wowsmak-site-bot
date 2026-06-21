@@ -47,6 +47,9 @@ app.locals.notifyRestock = ({ productId }) =>
 app.locals.notifyWebOrder = ({ order, items, total, stockOut, stockLow }) =>
   notifyAdminsWebOrder({ api: bot.api, order, items, total, stockOut, stockLow })
 
+// Бот API — для веб-адмінки (розсилка, сповіщення про статус замовлення)
+app.locals.botApi = bot.api
+
 // Публічний сайт магазину — монтується ОСТАННІМ (обробляє '/', каталог, кошик тощо)
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
