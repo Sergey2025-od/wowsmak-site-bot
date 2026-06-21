@@ -59,21 +59,50 @@
     if (inc) inc.addEventListener('click', function () { input.value = Math.min(99, (parseInt(input.value, 10) || 1) + 1) })
   })
 
+  // ---------- Ціна = ціна × кількість (з урахуванням фасовки) ----------
+  var priceWrap = document.getElementById('productPrice')
+  var qtyInputEl = document.getElementById('qtyInput')
+  var baseUnitPrice = priceWrap ? Number(priceWrap.getAttribute('data-unit-price')) : NaN
+  var unitPrice = baseUnitPrice
+  function curQty() { return qtyInputEl ? Math.max(1, parseInt(qtyInputEl.value, 10) || 1) : 1 }
+  function renderProductPrice() {
+    if (!priceWrap || !isFinite(unitPrice)) return
+    var now = priceWrap.querySelector('.price__now')
+    if (now) now.textContent = formatPrice(unitPrice * curQty())
+  }
+
   // ---------- Варіанти (packs) ----------
   var activePack = null
   var packsWrap = document.getElementById('packs')
   if (packsWrap) {
     packsWrap.querySelectorAll('.pack').forEach(function (btn, i) {
-      if (i === 0) activePack = btn.getAttribute('data-pack')
+      if (i === 0) {
+        activePack = btn.getAttribute('data-pack')
+        var p0 = btn.getAttribute('data-price')
+        if (p0) unitPrice = Number(p0)
+      }
       btn.addEventListener('click', function () {
         packsWrap.querySelectorAll('.pack').forEach(function (b) { b.classList.remove('is-active') })
         btn.classList.add('is-active')
         activePack = btn.getAttribute('data-pack')
         var price = btn.getAttribute('data-price')
-        var priceEl = document.querySelector('#productPrice .price__now')
-        if (price && priceEl) priceEl.textContent = formatPrice(price)
+        unitPrice = price ? Number(price) : baseUnitPrice
+        renderProductPrice()
       })
     })
+  }
+
+  // Перерахунок суми при зміні кількості на сторінці товару
+  if (qtyInputEl) {
+    var qtyWrap = qtyInputEl.closest('[data-qty]')
+    if (qtyWrap) {
+      qtyWrap.addEventListener('click', function (e) {
+        if (e.target.closest('[data-qty-inc],[data-qty-dec]')) setTimeout(renderProductPrice, 0)
+      })
+    }
+    qtyInputEl.addEventListener('change', renderProductPrice)
+    qtyInputEl.addEventListener('input', renderProductPrice)
+    renderProductPrice()
   }
 
   // ---------- Додавання в кошик ----------
