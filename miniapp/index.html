@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WowSmak</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles.css?v=2" />
+</head>
+<body>
+  <div id="app">
+    <div class="boot">
+      <div class="boot__logo">Wow<span>Smak</span></div>
+      <div class="boot__spinner"></div>
+    </div>
+  </div>
+
+  <nav id="tabbar" class="tabbar hidden">
+    <button class="tab" data-route="home"><span class="tab__ic">🏠</span><span>Головна</span></button>
+    <button class="tab" data-route="catalog"><span class="tab__ic">🛍️</span><span>Каталог</span></button>
+    <button class="tab" data-route="cart"><span class="tab__ic">🛒</span><span>Кошик</span><i class="tab__badge hidden" id="cartBadge">0</i></button>
+    <button class="tab" data-route="orders"><span class="tab__ic">📦</span><span>Замовлення</span></button>
+    <button class="tab" data-route="profile"><span class="tab__ic">👤</span><span>Профіль</span></button>
+  </nav>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
