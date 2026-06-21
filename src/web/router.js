@@ -29,15 +29,20 @@ import {
   infoPage,
   notFoundPage,
   favoritesPage,
+  accountPage,
 } from './pages.js'
 import { ARTICLES, getArticle, infoPages, STATIC_PATHS } from './content.js'
 import { sitemapXml, robotsTxt } from './seo.js'
+import { createAdminRouter } from './admin.js'
 
 const html = (res, body, status = 200) =>
   res.status(status).set('Content-Type', 'text/html; charset=utf-8').send(body)
 
 export function createSiteRouter() {
   const router = Router()
+
+  // Веб-адмінка (доступ лише для адмінів)
+  router.use('/admin', createAdminRouter())
 
   // Кошик — JSON стан (для бейджа в шапці)
   router.get('/cart/state', (req, res) => {
@@ -66,6 +71,11 @@ export function createSiteRouter() {
   router.get('/auth/logout', (req, res) => {
     clearSession(res)
     res.redirect(safeNext(req.query.next))
+  })
+
+  // ---------- Кабінет / Профіль ----------
+  router.get('/account', (req, res) => {
+    html(res, accountPage({ user: readSession(req) }))
   })
 
   // ---------- Головна ----------
