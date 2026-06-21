@@ -13,6 +13,8 @@ import {
   getProductById,
   getRelatedProducts,
   getProductReviews,
+  incrementProductViews,
+  getProductKeywords,
   resolveCart,
   createWebOrder,
 } from './data.js'
@@ -132,12 +134,14 @@ export function createSiteRouter() {
       const product = await getProductById(id)
       if (!product) return html(res, notFoundPage(), 404)
       const user = readSession(req)
-      const [related, reviews, categories] = await Promise.all([
+      const [related, reviews, categories, views, keywords] = await Promise.all([
         getRelatedProducts(product),
         getProductReviews(product.id),
         getCategories(),
+        incrementProductViews(id),
+        getProductKeywords(id),
       ])
-      html(res, productPage({ product, related, reviews, categories, user }))
+      html(res, productPage({ product, related, reviews, categories, user, views, keywords }))
     } catch (e) {
       next(e)
     }
