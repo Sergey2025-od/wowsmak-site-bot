@@ -38,22 +38,16 @@ export function homePage({ categories, hits, novelties, sales }) {
     )
     .join('')
 
-  const featured = sales[0] || hits[0] || novelties[0] || null
-  const promoShow =
-    featured && featured.image
-      ? `<div class="promo__show">${featured.discount ? `<span class="promo__badge">−${featured.discount}%</span>` : ''}<img class="promo__img" src="${esc(featured.image)}" alt="${esc(featured.title)}" loading="lazy" /></div>`
-      : `<div class="promo__art" aria-hidden="true">🍭🍫🍬</div>`
-
   const promo = `
   <section class="promo-wrap"><div class="container">
     <div class="promo">
       <div class="promo__content">
-        <span class="promo__eyebrow">🔥 Акція тижня</span>
-        <h2 class="promo__title">ТОП ТОВАРИ ТИЖНЯ<br>до <span>−25%</span></h2>
-        <p class="promo__sub">Найсмачніші солодощі за найсолодшими цінами. Доставка Новою Поштою по всій Україні.</p>
-        <a class="btn btn--light btn--lg" href="/catalog">Дивитись акції →</a>
+        <span class="promo__eyebrow">✨ ${esc(site.name)}</span>
+        <h2 class="promo__title">${esc(site.tagline)}</h2>
+        <p class="promo__sub">${esc(site.description)}</p>
+        <a class="btn btn--light btn--lg" href="/catalog">Перейти до каталогу →</a>
       </div>
-      ${promoShow}
+      <div class="promo__show promo__show--logo"><img class="promo__logo" src="/assets/img/logo.png" alt="${esc(site.name)}" loading="lazy" width="200" height="200" /></div>
     </div>
   </div></section>`
 
@@ -179,7 +173,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
 }
 
 // ---------- Картка товару ----------
-export function productPage({ product, related, reviews, categories = [], user = null }) {
+export function productPage({ product, related, reviews, categories = [], user = null, views = null, keywords = null }) {
   const p = product
   const crumbs = [
     { name: 'Головна', url: '/' },
@@ -206,8 +200,10 @@ export function productPage({ product, related, reviews, categories = [], user =
   const hasReviews = !!(reviews && reviews.count)
   const rating = hasReviews ? reviews.avg : null
   const ratingCount = hasReviews ? reviews.count : 0
-  const viewers = 6 + (n * 3) % 18
-  const soldToday = p.soldToday != null ? p.soldToday : Math.max(3, Math.round((p.orderCount || 0) / 3) + (n % 7))
+  const stats = []
+  if (views != null && views > 0) stats.push(`<span class="stat">👁 Переглядів: <strong>${views}</strong></span>`)
+  if (p.orderCount > 0) stats.push(`<span class="stat">🛒 Куплено разів: <strong>${p.orderCount}</strong></span>`)
+  const statsHtml = stats.length ? `<div class="product__stats">${stats.join('')}</div>` : ''
   const weight = weightLabel(p)
   const hit = (p.orderCount || 0) >= 30
 
@@ -308,11 +304,8 @@ export function productPage({ product, related, reviews, categories = [], user =
         ${p.category ? `<a class="product__cat" href="${categoryPath({ id: p.categoryId, title: p.category.title })}">${categoryIcon(p.category)} ${esc(p.category.title)}</a>` : ''}
         <h1 class="product__title">${esc(p.title)}</h1>
         ${hasReviews ? `<div class="product__rating">${stars(rating)} <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
-        <div class="product__stats">
-          <span class="stat">👁 Зараз дивиться: <strong>${viewers}</strong></span>
-          <span class="stat">🔥 Куплено сьогодні: <strong>${soldToday}</strong></span>
-        </div>
-        <div class="product__price" id="productPrice">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
+        ${statsHtml}
+        <div class="product__price" id="productPrice" data-unit-price="${priceVal}">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
         ${packsHtml}
         <div class="product__actions">
           <div class="qty" data-qty>
@@ -341,6 +334,7 @@ export function productPage({ product, related, reviews, categories = [], user =
       canonical: p.path,
       image: p.imageLarge || p.image,
       type: 'product',
+      keywords: keywords || undefined,
     },
     jsonLd: [jsonLdBreadcrumb(crumbs), jsonLdProduct(p, { reviews })],
   })
@@ -451,7 +445,7 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
     authBlock = `
       <div class="tg-auth">
         <h2 class="tg-auth__title">Увійдіть через Telegram</h2>
-        <p class="muted small">Щоб ми могли підтвердити замовлення та спілкуватися з вами у боті.</p>
+        <p class="muted small">Щоб ми могли підтвердити замо��лення та спілкуватися з вами у боті.</p>
         <script async src="https://telegram.org/js/telegram-widget.js?22"
           data-telegram-login="${esc(widgetName)}"
           data-size="large"
