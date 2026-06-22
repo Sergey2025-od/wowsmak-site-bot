@@ -29,7 +29,7 @@ const weightLabel = (p) =>
 const BRANDS = ['Oreo', 'Takis', 'Haribo', 'Kinder', "M&M's", 'Fini', "Hershey's", 'Pocky', 'Trolli', 'Roshen', 'Milka', 'Skittles']
 
 // ---------- Головна ----------
-export function homePage({ categories, hits, novelties, sales, banners = [] }) {
+export function homePage({ categories, hits, novelties, sales, banners = [], brands = [] }) {
   const catCards = categories
     .map(
       (c) => `
@@ -106,8 +106,15 @@ export function homePage({ categories, hits, novelties, sales, banners = [] }) {
       (a) => `<a class="blog-mini__item" href="/blog/${esc(a.slug)}"><div class="blog-mini__date">${esc(a.date)}</div><div class="blog-mini__title">${esc(a.title)}</div></a>`,
     )
     .join('')
-  const brandChips = BRANDS.slice(0, 8)
-    .map((b) => `<a class="brand-chip" href="/catalog?q=${encodeURIComponent(b)}">${esc(b)}</a>`)
+  const brandList = brands.length
+    ? brands
+    : BRANDS.map((b) => ({ title: b, logo: null, link: `/catalog?q=${encodeURIComponent(b)}` }))
+  const brandChips = brandList
+    .slice(0, 8)
+    .map(
+      (b) =>
+        `<a class="brand-chip" href="${esc(b.link)}" title="${esc(b.title)}">${b.logo ? `<img src="${esc(b.logo)}" alt="${esc(b.title)}" loading="lazy" />` : esc(b.title)}</a>`,
+    )
     .join('')
   const homeCols = `
   <section class="section"><div class="container"><div class="home-cols">
@@ -638,11 +645,17 @@ export function successPage({ orderId }) {
 }
 
 // ---------- Бренди ----------
-export function brandsPage() {
+export function brandsPage(brands = []) {
   const crumbs = [{ name: 'Головна', url: '/' }, { name: 'Бренди', url: '/brands' }]
-  const tiles = BRANDS.map(
-    (b) => `<a class="brand-tile" href="/catalog?q=${encodeURIComponent(b)}">${esc(b)}<small>дивитись товари →</small></a>`,
-  ).join('')
+  const list = brands.length
+    ? brands
+    : BRANDS.map((b) => ({ title: b, logo: null, link: `/catalog?q=${encodeURIComponent(b)}` }))
+  const tiles = list
+    .map(
+      (b) =>
+        `<a class="brand-tile" href="${esc(b.link)}">${b.logo ? `<img src="${esc(b.logo)}" alt="${esc(b.title)}" loading="lazy" />` : ''}<span>${esc(b.title)}</span><small>дивитись товари →</small></a>`,
+    )
+    .join('')
   const body = `
   ${breadcrumbs(crumbs)}
   <section class="section"><div class="container">
