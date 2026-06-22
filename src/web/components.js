@@ -16,16 +16,16 @@ export function productCard(p) {
   const badges = []
   if (p.discount) badges.push(`<span class="badge badge--sale">-${p.discount}%</span>`)
   if (p.hit) badges.push(`<span class="badge badge--hit">🔥 Хіт</span>`)
-  if (!p.available) badges.push(`<span class="badge badge--out">Немає</span>`)
   const img = p.image
     ? `<img class="pcard__img" src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy" width="400" height="400" />`
     : `<div class="pcard__img pcard__img--ph">🍬</div>`
+  const cartIcon = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`
   const addBtn = p.available
-    ? `<button class="pcard__add" data-add="${p.id}" type="button" aria-label="Додати в кошик">+</button>`
-    : `<button class="pcard__add" disabled aria-label="Немає в наявності">+</button>`
+    ? `<button class="pcard__add" data-add="${p.id}" type="button" aria-label="Додати в кошик">${cartIcon}</button>`
+    : `<button class="pcard__add pcard__add--off" disabled aria-label="Немає в наявності">${cartIcon}</button>`
   const rating =
     p.rating != null
-      ? `<div class="pcard__rating">${stars(p.rating)}<span class="muted small">${Number(p.rating).toFixed(1)}${p.ratingCount ? ` (${p.ratingCount})` : ''}</span></div>`
+      ? `<div class="pcard__rating"><span class="pcard__star">★</span><span class="muted small">${Number(p.rating).toFixed(1)}${p.ratingCount ? ` (${p.ratingCount})` : ''}</span></div>`
       : ''
   const priceVal = priceNumber(p.salePrice != null ? p.salePrice : p.price)
   const weight = p.weightG
@@ -34,14 +34,14 @@ export function productCard(p) {
       : `${p.weightG} г`
     : ''
   return `
-<article class="pcard" data-price="${priceVal}" data-sold="${p.soldToday || 0}" data-rating="${p.rating || 0}">
+<article class="pcard${p.available ? '' : ' is-out'}" data-price="${priceVal}" data-sold="${p.soldToday || 0}" data-rating="${p.rating || 0}" data-country="${esc(p.countryOfOrigin || '')}">
   <a class="pcard__media" href="${esc(p.path)}">
     ${badges.length ? `<div class="pcard__badges">${badges.join('')}</div>` : ''}
     <button class="pcard__fav" type="button" data-fav="${p.id}" aria-label="Додати в обране">♡</button>
     ${img}
+    ${p.available ? '' : '<div class="pcard__out">Немає в наявності</div>'}
   </a>
   <div class="pcard__body">
-    ${p.category ? `<a class="pcard__cat" href="${categoryPath({ id: p.categoryId, title: p.category.title })}">${categoryIcon(p.category)} ${esc(p.category.title)}</a>` : ''}
     <h3 class="pcard__title"><a href="${esc(p.path)}">${esc(p.title)}</a></h3>
     ${weight ? `<div class="pcard__meta muted">${esc(weight)}</div>` : ''}
     ${rating}
