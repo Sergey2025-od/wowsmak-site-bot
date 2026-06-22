@@ -58,6 +58,54 @@ export async function deleteBanner(id) {
   if (error) throw error
 }
 
+// ---------- Бренди (логотипи) ----------
+export async function listBrands() {
+  try {
+    const { data, error } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw error
+    return data || []
+  } catch {
+    return []
+  }
+}
+
+export async function listAllBrands() {
+  const { data, error } = await supabase.from('brands').select('*').order('sort_order')
+  if (error) throw error
+  return data || []
+}
+
+export async function createBrand(fields) {
+  const { data: last } = await supabase
+    .from('brands')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const sort_order = (last?.sort_order ?? 0) + 1
+  const { data, error } = await supabase
+    .from('brands')
+    .insert({ ...fields, sort_order })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateBrand(id, patch) {
+  const { error } = await supabase.from('brands').update(patch).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteBrand(id) {
+  const { error } = await supabase.from('brands').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ---------- Категорії ----------
 export async function getCategories() {
   const { data, error } = await supabase
@@ -481,7 +529,7 @@ export async function getShopProducts() {
   return data
 }
 
-// Сумарна кількість замовлених одиниць по кожному товару (для блоку «Хіти продажів»)
+// Сумарна кількість за��овлених одиниць по кожному товару (для блоку «Хіти продажів»)
 export async function getProductOrderCounts() {
   // exclude archived orders from counts
   const { data: activeOrders } = await supabase
@@ -528,8 +576,8 @@ export async function getOrders(tgId, limit = 30) {
   return data
 }
 
-// Позиції замовлення (з перевіркою власника)
-// Приховати всю історію замовлень клієнта (накладні зникають з його кабінету)
+// Позиції замовлен��я (з перевіркою власника)
+// Приховати всю історію замовлень клієнта (нак��адні зникають з його кабінету)
 export async function hideCustomerOrders(tgId) {
   const { error } = await supabase
     .from('orders')
