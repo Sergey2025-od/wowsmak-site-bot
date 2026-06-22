@@ -34,6 +34,8 @@ import {
   notFoundPage,
   favoritesPage,
   accountPage,
+  brandsPage,
+  bonusPage,
 } from './pages.js'
 import { ARTICLES, getArticle, infoPages, STATIC_PATHS } from './content.js'
 import { sitemapXml, robotsTxt } from './seo.js'
@@ -98,6 +100,7 @@ export function createSiteRouter() {
   router.get('/catalog', async (req, res, next) => {
     try {
       const q = (req.query.q || '').toString().trim().slice(0, 80)
+      const show = (req.query.show || '').toString()
       const [categories, all] = await Promise.all([getCategories(), getShopProducts()])
       let products = all
       if (q) {
@@ -108,6 +111,9 @@ export function createSiteRouter() {
             (p.description || '').toLowerCase().includes(ql),
         )
       }
+      if (show === 'new') products = [...products].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      else if (show === 'hits') products = [...products].sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0))
+      else if (show === 'sale') products = products.filter((p) => p.salePrice != null)
       html(res, catalogPage({ categories, products, activeCategory: null, query: q }))
     } catch (e) {
       next(e)
@@ -256,6 +262,8 @@ export function createSiteRouter() {
   router.get('/favorites', (req, res) => html(res, favoritesPage()))
 
   // ---------- Блог ----------
+  router.get('/brands', (req, res) => html(res, brandsPage()))
+  router.get('/bonus', (req, res) => html(res, bonusPage()))
   router.get('/blog', (req, res) => html(res, blogPage()))
   router.get('/blog/:slug', (req, res) => {
     const a = getArticle((req.params.slug || '').toString())
