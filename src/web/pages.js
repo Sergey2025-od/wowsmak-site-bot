@@ -26,12 +26,15 @@ import { ARTICLES } from './content.js'
 const weightLabel = (p) =>
   !p.weightG ? '' : p.weightG >= 1000 ? `${String(p.weightG / 1000).replace(/\.0$/, '')} кг` : `${p.weightG} г`
 
+const BRANDS = ['Oreo', 'Takis', 'Haribo', 'Kinder', "M&M's", 'Fini', "Hershey's", 'Pocky', 'Trolli', 'Roshen', 'Milka', 'Skittles']
+
 // ---------- Головна ----------
 export function homePage({ categories, hits, novelties, sales, banners = [] }) {
   const catCards = categories
     .map(
       (c) => `
     <a class="cat-card" href="${categoryPath(c)}">
+      <span class="cat-card__fav">♡</span>
       <span class="cat-card__ico">${c.image ? `<img src="${esc(c.image)}" alt="${esc(c.title)}" loading="lazy" width="64" height="64" />` : categoryIcon(c)}</span>
       <span class="cat-card__title">${esc(c.title)}</span>
     </a>`,
@@ -43,9 +46,16 @@ export function homePage({ categories, hits, novelties, sales, banners = [] }) {
     <div class="promo">
       <div class="promo__content">
         <span class="promo__eyebrow">✨ ${esc(site.name)}</span>
-        <h2 class="promo__title">${esc(site.tagline)}</h2>
-        <p class="promo__sub">${esc(site.description)}</p>
-        <a class="btn btn--light btn--lg" href="/catalog">Перейти до каталогу →</a>
+        <h2 class="promo__title">Імпортні солодощі<br>та снеки <span>з усього світу!</span></h2>
+        <div class="hero-feats">
+          <span class="hero-feat"><span>💎</span> 1000+ товарів</span>
+          <span class="hero-feat"><span>✅</span> Оригінальна продукція</span>
+          <span class="hero-feat"><span>🚚</span> Доставка по Україні</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn--primary btn--lg" href="/catalog">Перейти в каталог →</a>
+          <a class="btn btn--light btn--lg" href="/catalog?show=hits">Хіти продажів</a>
+        </div>
       </div>
       <div class="promo__show promo__show--logo"><img class="promo__logo" src="/assets/img/logo.png" alt="${esc(site.name)}" loading="lazy" width="200" height="200" /></div>
     </div>
@@ -85,18 +95,47 @@ export function homePage({ categories, hits, novelties, sales, banners = [] }) {
 
   const benefits = `
   <section class="section"><div class="container"><div class="benefits">
-    <div class="benefit"><span class="benefit__ico">🚚</span><div><strong>Безкоштовна доставка</strong><span>від 1200 ₴</span></div></div>
-    <div class="benefit"><span class="benefit__ico">🎁</span><div><strong>Бонуси за покупки</strong><span>до 10%</span></div></div>
-    <div class="benefit"><span class="benefit__ico">⚡</span><div><strong>Швидка доставка</strong><span>1-2 дні</span></div></div>
+    <div class="benefit"><span class="benefit__ico">🚚</span><div><strong>Швидка доставка</strong><span>1-2 дні по Україні</span></div></div>
+    <div class="benefit"><span class="benefit__ico">🛡️</span><div><strong>Оригінальні товари</strong><span>прямі постачання</span></div></div>
+    <div class="benefit"><span class="benefit__ico">⭐</span><div><strong>Бонуси за покупки</strong><span>накопичуй та витрачай</span></div></div>
+    <div class="benefit"><span class="benefit__ico">🎧</span><div><strong>Підтримка 24/7</strong><span>ми завжди на зв'язку</span></div></div>
+  </div></div></section>`
+
+  const blogItems = ARTICLES.slice(0, 3)
+    .map(
+      (a) => `<a class="blog-mini__item" href="/blog/${esc(a.slug)}"><div class="blog-mini__date">${esc(a.date)}</div><div class="blog-mini__title">${esc(a.title)}</div></a>`,
+    )
+    .join('')
+  const brandChips = BRANDS.slice(0, 8)
+    .map((b) => `<a class="brand-chip" href="/catalog?q=${encodeURIComponent(b)}">${esc(b)}</a>`)
+    .join('')
+  const homeCols = `
+  <section class="section"><div class="container"><div class="home-cols">
+    <div class="home-panel">
+      <div class="home-panel__head"><h2>📝 Блог ${esc(site.name)}</h2><a class="home-panel__more" href="/blog">Всі статті →</a></div>
+      <div class="blog-mini">${blogItems}</div>
+    </div>
+    <div class="home-panel bonus-card">
+      <div class="home-panel__head"><h2>🎁 WOW Бонуси</h2></div>
+      <p>Купуй та отримуй бонуси: <strong>1 бонус = 1 ₴</strong></p>
+      <div class="bonus-card__big">до 10%</div>
+      <p>повертаємо бонусами з кожної покупки</p>
+      <a class="btn btn--light" href="/bonus" style="margin-top:8px">Детальніше</a>
+    </div>
+    <div class="home-panel">
+      <div class="home-panel__head"><h2>🏆 Топ бренди</h2><a class="home-panel__more" href="/brands">Всі бренди →</a></div>
+      <div class="brands-grid">${brandChips}</div>
+    </div>
   </div></div></section>`
 
   const body = `
   ${hero}
-  ${section('Категорії', `<div class="cat-grid">${catCards}</div>`, { link: { href: '/catalog', label: 'Усі категорії' } })}
-  ${hits.length ? section('⭐ Хіти продажів', productGrid(hits), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
-  ${novelties.length ? section('✨ Новинки', productGrid(novelties), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
-  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog', label: 'Усі товари' } }) : ''}
+  ${section('Популярні категорії', `<div class="cat-grid">${catCards}</div>`, { link: { href: '/catalog', label: 'Усі категорії' } })}
+  ${hits.length ? section('⭐ Хіти продажів', productGrid(hits), { link: { href: '/catalog?show=hits', label: 'Дивитись всі' } }) : ''}
+  ${novelties.length ? section('✨ Новинки тижня', productGrid(novelties), { link: { href: '/catalog?show=new', label: 'Дивитись всі' } }) : ''}
+  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog?show=sale', label: 'Дивитись всі' } }) : ''}
   ${benefits}
+  ${homeCols}
   ${seoTextBlock()}`
 
   return layout(body, {
@@ -133,6 +172,12 @@ export function catalogPage({ categories, products, activeCategory, query }) {
   const prices = products.map((p) => priceNumber(p.salePrice != null ? p.salePrice : p.price)).filter((n) => n > 0)
   const maxP = prices.length ? Math.ceil(Math.max(...prices)) : 1000
   const minP = prices.length ? Math.floor(Math.min(...prices)) : 0
+  const countries = [...new Set(products.map((p) => p.countryOfOrigin).filter(Boolean))].sort()
+  const countryFilter = countries.length
+    ? `<div class="filter-card"><h3 class="filter-card__title">Країна</h3><div class="filter-checks">${countries
+        .map((c) => `<label class="filter-check"><input type="checkbox" class="country-check" value="${esc(c)}" checked /> ${esc(c)}</label>`)
+        .join('')}</div></div>`
+    : ''
 
   const catList = `
     <a class="cat-list__item${!activeId ? ' is-active' : ''}" href="/catalog">${icon('grid')}<span>Усі товари</span></a>
@@ -170,6 +215,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
         <option value="rating">За рейтингом</option>
       </select>
     </div>
+    ${countryFilter}
   </aside>`
 
   const body = `
@@ -337,6 +383,7 @@ export function productPage({ product, related, reviews, categories = [], user =
         ${hasReviews ? `<div class="product__rating"><span class="product__star">★</span> <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
         ${statsHtml}
         <div class="product__price" id="productPrice" data-unit-price="${priceVal}">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
+        <div class="product__bonus">🎁 +${Math.max(1, Math.floor(p.effectivePrice * 0.1))} бонусів на рахунок</div>
         ${packsHtml}
         <div class="product__actions">
           <div class="qty" data-qty>
@@ -588,6 +635,51 @@ export function successPage({ orderId }) {
     </div>
   </section>`
   return layout(body, { active: '', meta: { title: 'Замовлення прийнято', canonical: '/order/success', noindex: true } })
+}
+
+// ---------- Бренди ----------
+export function brandsPage() {
+  const crumbs = [{ name: 'Головна', url: '/' }, { name: 'Бренди', url: '/brands' }]
+  const tiles = BRANDS.map(
+    (b) => `<a class="brand-tile" href="/catalog?q=${encodeURIComponent(b)}">${esc(b)}<small>дивитись товари →</small></a>`,
+  ).join('')
+  const body = `
+  ${breadcrumbs(crumbs)}
+  <section class="section"><div class="container">
+    <h1 class="page-title">🏆 Топ бренди</h1>
+    <p class="muted" style="margin:-8px 0 18px">Оберіть улюблений бренд — і ми покажемо всі його смаколики в каталозі.</p>
+    <div class="brands-page-grid">${tiles}</div>
+  </div></section>`
+  return layout(body, {
+    active: '/brands',
+    meta: { title: 'Бренди', description: `Усі бренди солодощів та снеків у ${site.name}.`, canonical: '/brands' },
+    jsonLd: [jsonLdBreadcrumb(crumbs)],
+  })
+}
+
+// ---------- WOW Бонуси ----------
+export function bonusPage() {
+  const crumbs = [{ name: 'Головна', url: '/' }, { name: 'WOW Бонуси', url: '/bonus' }]
+  const body = `
+  ${breadcrumbs(crumbs)}
+  <section class="section"><div class="container">
+    <div class="bonus-hero">
+      <h1 style="margin:0">🎁 WOW Бонуси</h1>
+      <div class="bonus-hero__big">до 10% повертаємо</div>
+      <p style="opacity:.92;max-width:560px;margin:0 auto">Накопичуйте бонуси з кожного замовлення та оплачуйте ними частину наступних покупок. 1 бонус = 1 ₴.</p>
+    </div>
+    <div class="bonus-steps">
+      <div class="bonus-step"><div class="bonus-step__n">1</div><h3>Купуйте</h3><p class="muted">Оформлюйте замовлення на сайті або в Telegram.</p></div>
+      <div class="bonus-step"><div class="bonus-step__n">2</div><h3>Накопичуйте</h3><p class="muted">Отримуйте бонуси за кожну покупку на свій рахунок.</p></div>
+      <div class="bonus-step"><div class="bonus-step__n">3</div><h3>Витрачайте</h3><p class="muted">Оплачуйте бонусами частину наступних замовлень.</p></div>
+    </div>
+    <p style="margin-top:24px"><a class="btn btn--primary btn--lg" href="/catalog">Перейти в каталог →</a></p>
+  </div></section>`
+  return layout(body, {
+    active: '/bonus',
+    meta: { title: 'WOW Бонуси', description: `Бонусна програма ${site.name}: повертаємо до 10% бонусами з кожної покупки.`, canonical: '/bonus' },
+    jsonLd: [jsonLdBreadcrumb(crumbs)],
+  })
 }
 
 // ---------- Блог ----------
