@@ -20,21 +20,31 @@ function header(active, navCategories, activeCatId) {
     (n) =>
       `<a class="nav__link${active === n.href ? ' is-active' : ''}" href="${n.href}">${esc(n.label)}</a>`,
   ).join('')
-  const catbar =
-    navCategories && navCategories.length
-      ? `
-  <div class="catbar"><div class="container catbar__row">
-    <a class="catpill${!activeCatId ? ' is-active' : ''}" href="/catalog">${icon('candy')} Усі товари</a>
-    ${navCategories
-      .map(
-        (c) =>
-          `<a class="catpill${activeCatId === c.id ? ' is-active' : ''}" href="${categoryPath(c)}">${categoryIcon(c)} ${esc(c.title)}</a>`,
-      )
-      .join('')}
-  </div></div>`
-      : ''
+  const phoneHref = site.phone ? site.phone.replace(/[^+\d]/g, '') : ''
+  const promoLinks = [
+    { href: '/catalog?show=new', label: 'Новинки' },
+    { href: '/catalog?show=hits', label: 'Хіти продажів' },
+    { href: '/catalog?show=sale', label: 'Акції' },
+    { href: '/brands', label: 'Бренди' },
+  ]
+    .map((l) => `<a class="promobar__link" href="${l.href}">${esc(l.label)}</a>`)
+    .join('')
   return `
 <header class="site-header" id="top">
+  <div class="topbar">
+    <div class="container topbar__row">
+      <nav class="topbar__links">
+        <a href="/delivery">Доставка і оплата</a>
+        <a href="/about">Про нас</a>
+        <a href="/blog">Блог</a>
+        <a href="/contacts">Контакти</a>
+      </nav>
+      <div class="topbar__right">
+        <span class="topbar__lang">UA</span>
+        ${site.phone ? `<a class="topbar__phone" href="tel:${esc(phoneHref)}">📞 ${esc(site.phone)}</a>` : ''}
+      </div>
+    </div>
+  </div>
   <div class="container site-header__row">
     <a class="logo" href="/" aria-label="${esc(site.name)}">
       <img class="logo__img" src="/assets/img/logo-mark.png" alt="${esc(site.name)}" width="46" height="46" />
@@ -58,7 +68,11 @@ function header(active, navCategories, activeCatId) {
       </a>
     </div>
   </div>
-  ${catbar}
+  <div class="promobar"><div class="container promobar__row">
+    <a class="promobar__catalog" href="/catalog">▤ Каталог товарів</a>
+    ${promoLinks}
+    <a class="promobar__link promobar__link--wow" href="/bonus">WOW Бонуси 🎁</a>
+  </div></div>
 </header>`
 }
 
@@ -127,7 +141,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=14" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=15" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
@@ -140,13 +154,13 @@ export function layout(content, opts = {}) {
     <div class="theme-switch__panel">
       <h4>Оберіть дизайн</h4>
       <p>Три варіанти — обери, що подобається</p>
-      <button class="theme-opt" data-theme-set="1" type="button"><span class="theme-opt__sw theme-opt__sw--1"></span><span>Помаранчева<small>Темна (як референс)</small></span></button>
+      <button class="theme-opt" data-theme-set="1" type="button"><span class="theme-opt__sw theme-opt__sw--1"></span><span>Неонова<small>Темна (основна)</small></span></button>
       <button class="theme-opt" data-theme-set="2" type="button"><span class="theme-opt__sw theme-opt__sw--2"></span><span>Неон<small>Темна рожева</small></span></button>
       <button class="theme-opt" data-theme-set="3" type="button"><span class="theme-opt__sw theme-opt__sw--3"></span><span>Цукеркова<small>Світла</small></span></button>
     </div>
     <button class="theme-switch__toggle" id="themeToggle" type="button" aria-label="Змінити дизайн">🎨</button>
   </div>
-  <script src="/assets/js/site.js?v=13" defer></script>
+  <script src="/assets/js/site.js?v=15" defer></script>
 </body>
 </html>`
 }
