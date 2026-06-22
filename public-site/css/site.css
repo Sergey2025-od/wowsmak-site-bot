@@ -520,3 +520,8 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 
 /* Product bonus line */
 .product__bonus{display:inline-flex;align-items:center;gap:8px;margin:2px 0 14px;padding:7px 13px;border-radius:999px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);font-weight:700;font-size:.88rem}
+
+/* Brand logos (admin-managed) */
+.brand-chip img{max-width:100%;max-height:34px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(255,45,142,.25))}
+.brand-tile img{max-width:100%;max-height:52px;object-fit:contain;margin-bottom:2px}
+.brand-tile span{font-family:var(--display);font-weight:800;font-size:1.1rem}
