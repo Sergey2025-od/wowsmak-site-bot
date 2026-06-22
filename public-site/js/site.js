@@ -324,20 +324,28 @@
     pRange.addEventListener('input', function () { pMax.value = pRange.value })
     pMax.addEventListener('input', function () { pRange.value = pMax.value })
   }
+  var countryChecks = [].slice.call(document.querySelectorAll('.country-check'))
   function applyPrice() {
     if (!pgrid) return
     var lo = parseFloat(pMin && pMin.value) || 0
     var hi = parseFloat(pMax && pMax.value) || Infinity
+    var allowed = null
+    if (countryChecks.length) {
+      allowed = {}
+      countryChecks.forEach(function (c) { if (c.checked) allowed[c.value] = true })
+    }
     var shown = 0
     pgrid.querySelectorAll('.pcard').forEach(function (card) {
       var pr = +card.getAttribute('data-price') || 0
       var ok = pr >= lo && pr <= hi
+      if (ok && allowed) ok = !!allowed[card.getAttribute('data-country') || '']
       card.style.display = ok ? '' : 'none'
       if (ok) shown++
     })
     if (rCount) rCount.textContent = shown
   }
   if (pApply) pApply.addEventListener('click', applyPrice)
+  countryChecks.forEach(function (c) { c.addEventListener('change', applyPrice) })
 
   // ---------- Перемикач тем ----------
   var tsw = document.getElementById('themeSwitch')
