@@ -8,6 +8,7 @@ import { config } from '../config.js'
 import { idFromParam } from './util.js'
 import {
   getHomeData,
+  getBrands,
   getCategories,
   getShopProducts,
   getProductById,
@@ -262,7 +263,14 @@ export function createSiteRouter() {
   router.get('/favorites', (req, res) => html(res, favoritesPage()))
 
   // ---------- Блог ----------
-  router.get('/brands', (req, res) => html(res, brandsPage()))
+  router.get('/brands', async (req, res, next) => {
+    try {
+      const brands = await getBrands()
+      html(res, brandsPage(brands))
+    } catch (e) {
+      next(e)
+    }
+  })
   router.get('/bonus', (req, res) => html(res, bonusPage()))
   router.get('/blog', (req, res) => html(res, blogPage()))
   router.get('/blog/:slug', (req, res) => {
