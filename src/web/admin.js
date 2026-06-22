@@ -131,6 +131,7 @@ function shell(active, body, flash = '') {
   ${navItem('/admin/products', '\uD83C\uDF6C Товари', active)}
   ${navItem('/admin/categories', '\uD83D\uDCC1 Категорії', active)}
   ${navItem('/admin/banners', '\uD83D\uDDBC Банери', active)}
+  ${navItem('/admin/brands', '\uD83C\uDFF7 Бренди', active)}
   ${navItem('/admin/orders', '\uD83E\uDDFE Замовлення', active)}
   ${navItem('/admin/earnings', '\uD83D\uDCB0 Прибуток', active)}
   ${navItem('/admin/stats', '\uD83D\uDCC8 Аналітика', active)}
@@ -503,6 +504,85 @@ export function createAdminRouter() {
   router.post('/banners/:id/delete', async (req, res) => {
     try { await db.deleteBanner(Number(req.params.id)); back(res, '/admin/banners', 'Банер видалено') }
     catch (e) { back(res, '/admin/banners', null, e.message) }
+  })
+
+  // ============ БРЕНДИ (логотипи) ============
+  router.get('/brands', async (req, res, next) => {
+    try {
+      const brands = await db.listAllBrands()
+      const card = (b) => {
+        const key = b ? b.id : 'new'
+        const action = b ? `/admin/brands/${b.id}` : '/admin/brands/new'
+        const prev = b && b.logo_url ? imageUrl(b.logo_url, { width: 240, crop: 'fit', format: 'png' }) : ''
+        return `<div class="panel">
+          <form method="post" action="${action}">
+            <div class="grid2">
+              <label class="f">Назва бренду<input name="title" value="${b ? esc(b.title || '') : ''}" placeholder="Oreo" required/></label>
+              <label class="f">Посилання (необов'язково)<input name="link" value="${b ? esc(b.link || '') : ''}" placeholder="/catalog?q=Oreo"/></label>
+            </div>
+            <div class="row">
+              <label class="f" style="flex:0 0 130px;margin:0">Порядок<input name="sort_order" type="number" value="${b ? (b.sort_order ?? 0) : 0}"/></label>
+              <label class="inline" style="margin:0"><input type="checkbox" name="is_active" ${!b || b.is_active ? 'checked' : ''}/> Активний</label>
+            </div>
+            <input type="hidden" name="logo_url" id="brlogo-${key}" value="${b ? esc(b.logo_url || '') : ''}"/>
+            <div class="media"><img id="brprev-${key}" src="${prev}" alt="" style="display:${prev ? 'block' : 'none'};width:160px;height:80px;object-fit:contain;background:var(--panel2);border-radius:10px"/></div>
+            <div class="row">
+              <input type="file" accept="image/*" onchange="uploadBrandLogo('${key}', this)" style="max-width:240px;color:var(--muted)"/>
+              <button class="btn">${b ? '💾 Зберегти' : '➕ Створити бренд'}</button>
+            </div>
+          </form>
+          ${b ? `<form method="post" action="/admin/brands/${b.id}/delete" onsubmit="return confirm('Видалити бренд?')" style="margin-top:10px"><button class="btn btn--danger btn--sm">Видалити</button></form>` : ''}
+        </div>`
+      }
+      const list = brands.length ? brands.map((b) => card(b)).join('') : '<p class="muted">Брендів ще немає. Додайте перший нижче.</p>'
+      const body = `<h1>Бренди <span class="muted" style="font-size:16px">(${brands.length})</span></h1>
+      <p class="muted" style="margin:-8px 0 16px">Логотипи показуються на головній (блок «Топ бренди») та на сторінці /brands. Клік веде в каталог із пошуком за назвою бренду (або за вашим посиланням). Прозорий PNG виглядає найкраще.</p>
+      ${list}
+      <h2>➕ Новий бренд</h2>
+      ${card(null)}
+      <script>
+      function uploadBrandLogo(key, input){
+        var f=(input.files||[])[0]; if(!f) return;
+        var r=new FileReader();
+        r.onload=function(){
+          fetch('/admin/upload/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl:r.result})})
+            .then(function(x){return x.json()})
+            .then(function(j){ if(j.ok){ document.getElementById('brlogo-'+key).value=j.publicId; var pv=document.getElementById('brprev-'+key); if(pv){pv.src=j.url; pv.style.display='block';} } else alert(j.error||'Помилка'); })
+            .catch(function(){ alert('Помилка завантаження'); });
+        };
+        r.readAsDataURL(f);
+      }
+      </script>`
+      html(res, shell('/admin/brands', body, flashFrom(req)))
+    } catch (e) { next(e) }
+  })
+
+  router.post('/brands/new', async (req, res) => {
+    try {
+      const b = req.body || {}
+      await db.createBrand({
+        title: str(b.title), logo_url: str(b.logo_url), link: str(b.link),
+        is_active: b.is_active === 'on' || b.is_active === 'true',
+      })
+      back(res, '/admin/brands', 'Бренд створено')
+    } catch (e) { back(res, '/admin/brands', null, e.message) }
+  })
+
+  router.post('/brands/:id', async (req, res) => {
+    try {
+      const b = req.body || {}
+      await db.updateBrand(Number(req.params.id), {
+        title: str(b.title), logo_url: str(b.logo_url), link: str(b.link),
+        sort_order: num(b.sort_order) ?? 0,
+        is_active: b.is_active === 'on' || b.is_active === 'true',
+      })
+      back(res, '/admin/brands', 'Збережено')
+    } catch (e) { back(res, '/admin/brands', null, e.message) }
+  })
+
+  router.post('/brands/:id/delete', async (req, res) => {
+    try { await db.deleteBrand(Number(req.params.id)); back(res, '/admin/brands', 'Бренд видалено') }
+    catch (e) { back(res, '/admin/brands', null, e.message) }
   })
 
   // ============ ЗАМОВЛЕННЯ ============
