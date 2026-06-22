@@ -165,15 +165,34 @@ export async function getBanners() {
   }
 }
 
+export async function getBrands() {
+  try {
+    const { data, error } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+    if (error) throw error
+    return (data || []).map((b) => ({
+      id: b.id,
+      title: b.title || '',
+      logo: b.logo_url ? imageUrl(b.logo_url, { width: 240, crop: 'fit', format: 'png' }) : null,
+      link: b.link || `/catalog?q=${encodeURIComponent(b.title || '')}`,
+    }))
+  } catch {
+    return []
+  }
+}
+
 // Дані для головної: категорії, хіти, новинки, акції
 export async function getHomeData() {
-  const [categories, products, banners] = await Promise.all([getCategories(), getShopProducts(), getBanners()])
+  const [categories, products, banners, brands] = await Promise.all([getCategories(), getShopProducts(), getBanners(), getBrands()])
   const hits = [...products].sort((a, b) => b.orderCount - a.orderCount).slice(0, 8)
   const novelties = [...products]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 8)
   const sales = products.filter((p) => p.salePrice != null).slice(0, 8)
-  return { categories, products, hits, novelties, sales, banners }
+  return { categories, products, hits, novelties, sales, banners, brands }
 }
 
 // Відгуки товару (якщо таблиця існує)
