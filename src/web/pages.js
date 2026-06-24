@@ -57,7 +57,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
           <a class="btn btn--light btn--lg" href="/catalog?show=hits">Хіти продажів</a>
         </div>
       </div>
-      <div class="promo__show promo__show--logo"><img class="promo__logo" src="/assets/img/logo.png" alt="${esc(site.name)}" loading="lazy" width="200" height="200" /></div>
+      <div class="promo__show promo__show--art"><img class="promo__art" src="/assets/img/hero-candy.svg" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="440" height="380" /></div>
     </div>
   </div></section>`
 
@@ -182,7 +182,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
   const countries = [...new Set(products.map((p) => p.countryOfOrigin).filter(Boolean))].sort()
   const countryFilter = countries.length
     ? `<div class="filter-card"><h3 class="filter-card__title">Країна</h3><div class="filter-checks">${countries
-        .map((c) => `<label class="filter-check"><input type="checkbox" class="country-check" value="${esc(c)}" checked /> ${esc(c)}</label>`)
+        .map((c) => `<label class="filter-check"><span class="filter-check__name"><input type="checkbox" class="country-check" value="${esc(c)}" checked /> ${esc(c)}</span><span class="filter-count">${products.filter((x) => x.countryOfOrigin === c).length}</span></label>`)
         .join('')}</div></div>`
     : ''
 
@@ -348,11 +348,13 @@ export function productPage({ product, related, reviews, categories = [], user =
     ? `<p>${esc(p.fullDescription || p.description)}</p>`
     : '<p class="muted">Опис уточнюється.</p>'
 
+  const deliveryHtml = `<h4>🚚 Доставка</h4><ul><li>Нова Пошта — 1–2 дні по всій Україні</li><li>Кур'єрська доставка по місту</li><li>Самовивіз із відділення</li></ul><h4>💳 Оплата</h4><ul><li>Оплата карткою онлайн</li><li>Накладений платіж при отриманні</li><li>Оплата через Telegram-бот</li></ul>`
   const tabs = [
     { id: 'desc', label: 'Опис', html: descHtml },
     { id: 'compose', label: 'Склад', html: composeTable },
     { id: 'specs', label: 'Характеристики', html: specsTable },
     { id: 'reviews', label: ratingCount ? `Відгуки (${ratingCount})` : 'Відгуки', html: reviewsList },
+    { id: 'delivery', label: 'Доставка і оплата', html: deliveryHtml },
   ]
   const tabsHtml = `
   <div class="tabs" id="productTabs">
@@ -375,6 +377,22 @@ export function productPage({ product, related, reviews, categories = [], user =
   const priceVal = priceNumber(p.salePrice != null ? p.salePrice : p.price)
   const favBtn = `<button class="product__fav" type="button" data-fav="${p.id}" data-fav-title="${esc(p.title)}" data-fav-image="${esc(p.image || '')}" data-fav-price="${priceVal}" data-fav-path="${esc(p.path)}" aria-label="В обране">♡</button>`
 
+  const summaryRows = []
+  if (p.category) summaryRows.push(['Категорія', p.category.title])
+  if (p.weightG) summaryRows.push(['Вага', weight])
+  if (p.unitsPerPack) summaryRows.push(['Шт. в упаковці', String(p.unitsPerPack)])
+  if (p.countryOfOrigin) summaryRows.push(['Країна', p.countryOfOrigin])
+  if (p.shelfLife) summaryRows.push(['Термін придатності', p.shelfLife])
+  const summaryCard = summaryRows.length
+    ? `<div class="product__aside-card"><h3 class="product__aside-title">Характеристики</h3><table class="specs specs--mini">${summaryRows.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table><a class="product__aside-more" href="#productTabs">Всі характеристики →</a></div>`
+    : ''
+  const infoBoxes = `<div class="product__boxes">
+      <div class="product__box"><span class="product__box-ico">🚚</span><div><strong>Доставка</strong><small>1–2 дні по Україні, Нова Пошта</small></div></div>
+      <div class="product__box"><span class="product__box-ico">💳</span><div><strong>Оплата</strong><small>Онлайн або при отриманні</small></div></div>
+      <div class="product__box"><span class="product__box-ico">🎁</span><div><strong>Бонуси</strong><small>+${Math.max(1, Math.floor(p.effectivePrice * 0.1))} ₴ на рахунок</small></div></div>
+    </div>`
+  const productAside = `<aside class="product__aside">${summaryCard}${infoBoxes}</aside>`
+
   const body = `
   ${breadcrumbs(crumbs)}
   <section class="section product">
@@ -387,7 +405,10 @@ export function productPage({ product, related, reviews, categories = [], user =
       <div class="product__info">
         ${badgesHtml}
         <h1 class="product__title">${esc(p.title)}</h1>
-        ${hasReviews ? `<div class="product__rating"><span class="product__star">★</span> <span class="muted">${Number(rating).toFixed(1)} (${ratingCount} відгуків)</span></div>` : '<div class="product__rating"><span class="muted">Ще немає відгуків</span></div>'}
+        <div class="product__sub">
+          ${hasReviews ? `<span class="product__rating">${stars(rating)} <span class="muted">${Number(rating).toFixed(1)} (${ratingCount})</span></span>` : `<span class="product__rating">${stars(0)} <span class="muted">Ще немає відгуків</span></span>`}
+          <span class="product__sku">Артикул: ${String(p.id).padStart(6, '0')}</span>
+        </div>
         ${statsHtml}
         <div class="product__price" id="productPrice" data-unit-price="${priceVal}">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
         <div class="product__bonus">🎁 +${Math.max(1, Math.floor(p.effectivePrice * 0.1))} бонусів на рахунок</div>
@@ -403,6 +424,7 @@ export function productPage({ product, related, reviews, categories = [], user =
         </div>
         <a class="product__tg" href="${esc(botLink())}" rel="nofollow">✈️ Купити через Telegram</a>
       </div>
+      ${productAside}
     </div>
     <div class="container product__details">
       ${tabsHtml}
