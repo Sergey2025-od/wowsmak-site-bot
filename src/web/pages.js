@@ -35,7 +35,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
       (c) => `
     <a class="cat-card" href="${categoryPath(c)}">
       <span class="cat-card__fav">♡</span>
-      <span class="cat-card__ico">${c.image ? `<img src="${esc(c.image)}" alt="${esc(c.title)}" loading="lazy" width="64" height="64" />` : categoryIcon(c)}</span>
+      <span class="cat-card__media">${c.image ? `<img src="${esc(c.image)}" alt="${esc(c.title)}" loading="lazy" />` : categoryIcon(c)}</span>
       <span class="cat-card__title">${esc(c.title)}</span>
     </a>`,
     )
@@ -49,13 +49,13 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
         <span class="promo__eyebrow">✨ ${esc(site.name)}</span>
         <h2 class="promo__title promo__title--img"><img class="promo__headline" src="/assets/img/hero-title.png" alt="Імпортні солодощі та снеки з усього світу!" width="618" height="294" loading="eager" /></h2>
         <div class="hero-feats">
-          <span class="hero-feat"><span>💎</span> 1000+ товарів</span>
-          <span class="hero-feat"><span>✅</span> Оригінальна продукція</span>
-          <span class="hero-feat"><span>🚚</span> Доставка по Україні</span>
+          <span class="hero-feat"><span class="hero-feat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18"/><path d="M9 3 6 9l6 12 6-12-3-6"/></svg></span><span class="hero-feat__txt"><strong>1000+</strong><span>товарів</span></span></span>
+          <span class="hero-feat"><span class="hero-feat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/></svg></span><span class="hero-feat__txt"><strong>Оригінальна</strong><span>продукція</span></span></span>
+          <span class="hero-feat"><span class="hero-feat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span><span class="hero-feat__txt"><strong>Доставка</strong><span>по Україні</span></span></span>
         </div>
         <div class="hero-cta">
           <a class="btn btn--primary btn--lg" href="/catalog">Перейти в каталог →</a>
-          <a class="btn btn--light btn--lg" href="/catalog?show=hits">Хіти продажів</a>
+          <a class="btn btn--hits btn--lg" href="/catalog?show=hits">🔥 Хіти продажів</a>
         </div>
       </div>
       <div class="promo__show promo__show--art"><img class="promo__art promo__art--photo" src="${heroImg ? esc(heroImg) : '/assets/img/hero-candy.png'}" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="1080" height="788" /></div>
