@@ -41,6 +41,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     )
     .join('')
 
+  const heroImg = banners.find((b) => b.image)?.image || ''
   const promoFallback = `
   <section class="promo-wrap"><div class="container">
     <div class="promo">
@@ -57,7 +58,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
           <a class="btn btn--light btn--lg" href="/catalog?show=hits">Хіти продажів</a>
         </div>
       </div>
-      <div class="promo__show promo__show--art"><img class="promo__art" src="/assets/img/hero-candy.svg" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="440" height="380" /></div>
+      <div class="promo__show promo__show--art"><img class="promo__art${heroImg ? ' promo__art--photo' : ''}" src="${heroImg ? esc(heroImg) : '/assets/img/hero-candy.svg'}" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="440" height="380" /></div>
     </div>
   </div></section>`
 
@@ -76,22 +77,9 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     )
     .join('')
 
-  const hero = banners.length
-    ? `
-  <section class="promo-wrap"><div class="container">
-    <div class="hero" data-carousel>
-      <div class="hero__track">${heroSlides}</div>
-      ${
-        banners.length > 1
-          ? `
-      <button class="hero__arrow hero__arrow--prev" type="button" data-car-prev aria-label="Назад">‹</button>
-      <button class="hero__arrow hero__arrow--next" type="button" data-car-next aria-label="Вперед">›</button>
-      <div class="hero__dots">${banners.map((_, i) => `<button class="hero__dot${i === 0 ? ' is-on' : ''}" type="button" data-car-dot="${i}" aria-label="Слайд ${i + 1}"></button>`).join('')}</div>`
-          : ''
-      }
-    </div>
-  </div></section>`
-    : promoFallback
+  // Герой — завжди текст зліва + фото/ілюстрація справа (фото береться з банера, якщо є)
+  void heroSlides
+  const hero = promoFallback
 
   const benefits = `
   <section class="section"><div class="container"><div class="benefits">
