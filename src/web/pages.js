@@ -47,7 +47,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     <div class="promo">
       <div class="promo__content">
         <span class="promo__eyebrow">✨ ${esc(site.name)}</span>
-        <h2 class="promo__title"><span class="pt-line pt-white">Імпортні</span><span class="pt-line pt-pink">солодощі</span><span class="pt-line pt-yellow">та снеки</span><span class="pt-line pt-script">з усього світу!</span></h2>
+        <h2 class="promo__title promo__title--img"><img class="promo__headline" src="/assets/img/hero-title.png" alt="Імпортні солодощі та снеки з усього світу!" width="618" height="294" loading="eager" /></h2>
         <div class="hero-feats">
           <span class="hero-feat"><span>💎</span> 1000+ товарів</span>
           <span class="hero-feat"><span>✅</span> Оригінальна продукція</span>
@@ -58,7 +58,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
           <a class="btn btn--light btn--lg" href="/catalog?show=hits">Хіти продажів</a>
         </div>
       </div>
-      <div class="promo__show promo__show--art"><img class="promo__art${heroImg ? ' promo__art--photo' : ''}" src="${heroImg ? esc(heroImg) : '/assets/img/hero-candy.svg'}" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="440" height="380" /></div>
+      <div class="promo__show promo__show--art"><img class="promo__art promo__art--photo" src="${heroImg ? esc(heroImg) : '/assets/img/hero-candy.png'}" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="1080" height="788" /></div>
     </div>
   </div></section>`
 
