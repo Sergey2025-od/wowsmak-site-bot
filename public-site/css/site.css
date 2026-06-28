@@ -556,3 +556,7 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 .filter-count{color:var(--muted);font-size:.78rem;background:var(--surface-2);border-radius:8px;padding:1px 8px}
 @media(max-width:1080px){.product__grid{grid-template-columns:minmax(0,420px) minmax(0,1fr)}.product__aside{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap}.product__aside-card{flex:1 1 320px}.product__boxes{flex:1 1 320px;flex-direction:row}.product__box{flex:1 1 180px}}
 @media(max-width:760px){.product__grid{grid-template-columns:1fr}.product__aside{flex-direction:column}.product__boxes{flex-direction:column}}
+
+/* Hero: real photo on the right (banner image) */
+.promo__art--photo{max-width:560px;max-height:470px;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 14px 44px rgba(255,45,142,.45))}
+@media(max-width:760px){.promo__art--photo{max-width:320px}}
