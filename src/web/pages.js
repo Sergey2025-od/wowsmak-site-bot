@@ -47,7 +47,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     <div class="promo">
       <div class="promo__content">
         <span class="promo__eyebrow">✨ ${esc(site.name)}</span>
-        <h2 class="promo__title">Імпортні солодощі<br>та снеки <span>з усього світу!</span></h2>
+        <h2 class="promo__title"><span class="pt-line pt-white">Імпортні</span><span class="pt-line pt-pink">солодощі</span><span class="pt-line pt-yellow">та снеки</span><span class="pt-line pt-script">з усього світу!</span></h2>
         <div class="hero-feats">
           <span class="hero-feat"><span>💎</span> 1000+ товарів</span>
           <span class="hero-feat"><span>✅</span> Оригінальна продукція</span>
