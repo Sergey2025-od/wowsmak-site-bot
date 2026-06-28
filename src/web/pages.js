@@ -128,7 +128,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
   ${section('Популярні категорії', `<div class="cat-grid">${catCards}</div>`, { link: { href: '/catalog', label: 'Усі категорії' } })}
   ${hits.length ? section('⭐ Хіти продажів', productGrid(hits), { link: { href: '/catalog?show=hits', label: 'Дивитись всі' } }) : ''}
   ${novelties.length ? section('✨ Новинки тижня', productGrid(novelties), { link: { href: '/catalog?show=new', label: 'Дивитись всі' } }) : ''}
-  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog?show=sale', label: 'Дивитись всі' } }) : ''}
+  ${sales.length ? section('🔥 Акції', productGrid(sales), { link: { href: '/catalog?show=sale', label: 'Д��витись всі' } }) : ''}
   ${benefits}
   ${homeCols}
   ${seoTextBlock()}`
@@ -148,7 +148,7 @@ function seoTextBlock() {
     <div class="container">
       <h2>${esc(site.name)} — купити солодощі онлайн в Україні</h2>
       <p>${esc(site.name)} — це зручний інтернет-магазин солодощів із доставкою. У нас ви знайдете шоколад, льодяники, мармелад, жувальні цукерки та подарункові набори на будь-який смак та бюджет.</p>
-      <p>Замовляйте прямо на сайті або через <a href="${esc(botLink())}" rel="nofollow">Telegram</a> — ми швидко підтвердимо замовлення та відправимо його Новою Поштою.</p>
+      <p>Замовляйте прямо на сайті або через <a href="${esc(botLink())}" rel="nofollow">Telegram</a> — ми швидко підтвердимо замовлення та відправимо й��го Новою Поштою.</p>
     </div>
   </section>`
 }
@@ -286,7 +286,7 @@ export function productPage({ product, related, reviews, categories = [], user =
 
   const specs = []
   if (p.weightG) specs.push(['Вага', weight])
-  if (p.unitsPerPack) specs.push(['Шт. в упаковці', `${p.unitsPerPack}`])
+  if (p.unitsPerPack) specs.push(['Шт. в упако����і', `${p.unitsPerPack}`])
   if (p.flavors && p.flavors.length) specs.push(['Смаки', p.flavors.join(', ')])
   if (p.countryOfOrigin) specs.push(['Країна', p.countryOfOrigin])
   if (p.shelfLife) specs.push(['Термін придатності', p.shelfLife])
@@ -407,7 +407,7 @@ export function productPage({ product, related, reviews, categories = [], user =
             <input class="qty__input" id="qtyInput" type="number" value="1" min="1" max="99" inputmode="numeric" />
             <button type="button" class="qty__btn" data-qty-inc aria-label="Більше">+</button>
           </div>
-          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає в наявності</button>`}
+          ${p.available ? `<button class="btn btn--primary btn--lg" id="addToCart" data-add="${p.id}" type="button">Додати в кошик</button>` : `<button class="btn btn--ghost btn--lg" disabled>Немає �� наявності</button>`}
           ${favBtn}
         </div>
         <a class="product__tg" href="${esc(botLink())}" rel="nofollow">✈️ Купити через Telegram</a>
@@ -542,7 +542,7 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
     authBlock = `
       <div class="tg-auth">
         <h2 class="tg-auth__title">Увійдіть через Telegram</h2>
-        <p class="muted small">Щоб ми могли підтвердити замовлення та спілкуватися з вами у боті.</p>
+        <p class="muted small">Щоб ми могли підтвердити замо��лення та спілкуватися з вами у боті.</p>
         <script async src="https://telegram.org/js/telegram-widget.js?22"
           data-telegram-login="${esc(widgetName)}"
           data-size="large"
@@ -565,8 +565,8 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
           <label>Email<input name="email" type="email" value="${esc(values.email || '')}" autocomplete="email" /></label>
           <label>Адреса доставки (місто, відділення НП) *<input name="address" required value="${esc(values.address || '')}" autocomplete="street-address" /></label>
           <label>Коментар до замовлення<textarea name="comment" rows="3">${esc(values.comment || '')}</textarea></label>
-          <button class="btn btn--primary btn--lg btn--block" type="submit">Підтвердити замовлення</button>
-          <p class="muted small">Натискаючи кнопку, ви погоджуєтесь, що менеджер зв'яжеться з вами для підтвердження.</p>
+          <button class="btn btn--primary btn--lg btn--block" type="submit">Підтвердити замо��лення</button>
+          <p class="muted small">Натискаючи кнопку, ви погоджуєтесь, щ�� менеджер зв'яжеться з вами для підтвердження.</p>
         </form>
         <aside class="checkout__summary">
           <h2>Ваше замовлення</h2>
