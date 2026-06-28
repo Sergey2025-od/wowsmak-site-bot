@@ -47,8 +47,7 @@ function header(active, navCategories, activeCatId) {
   </div>
   <div class="container site-header__row">
     <a class="logo" href="/" aria-label="${esc(site.name)}">
-      <img class="logo__img" src="/assets/img/logo-mark.png" alt="${esc(site.name)}" width="46" height="46" />
-      <span class="logo__text">Wow<span class="logo__accent">Smak</span></span>
+      <img class="logo__img logo__img--full" src="/assets/img/logo-head.png" alt="${esc(site.name)}" width="261" height="220" />
     </a>
     <form class="header-search" action="/catalog" method="get" role="search">
       <input type="search" name="q" placeholder="Пошук смаколиків…" aria-label="Пошук товарів" />
@@ -141,7 +140,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=25" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=26" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
