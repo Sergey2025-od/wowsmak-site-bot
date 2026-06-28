@@ -22,12 +22,12 @@ import {
   jsonLdFaq,
 } from './seo.js'
 import { ARTICLES } from './content.js'
-​
+
 const weightLabel = (p) =>
   !p.weightG ? '' : p.weightG >= 1000 ? `${String(p.weightG / 1000).replace(/\.0$/, '')} кг` : `${p.weightG} г`
-​
+
 const BRANDS = ['Oreo', 'Takis', 'Haribo', 'Kinder', "M&M's", 'Fini', "Hershey's", 'Pocky', 'Trolli', 'Roshen', 'Milka', 'Skittles']
-​
+
 // ---------- Головна ----------
 export function homePage({ categories, hits, novelties, sales, banners = [], brands = [] }) {
   const catCards = categories
@@ -40,7 +40,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     </a>`,
     )
     .join('')
-​
+
   const heroImg = banners.find((b) => b.image)?.image || ''
   const promoFallback = `
   <section class="promo-wrap"><div class="container">
@@ -61,7 +61,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
       <div class="promo__show promo__show--art"><img class="promo__art promo__art--photo" src="${heroImg ? esc(heroImg) : '/assets/img/hero-candy.png'}" alt="Імпортні солодощі та снеки — ${esc(site.name)}" loading="eager" width="1080" height="788" /></div>
     </div>
   </div></section>`
-​
+
   const heroSlides = banners
     .map(
       (b) => `
@@ -76,11 +76,11 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
       </div>`,
     )
     .join('')
-​
+
   // Герой — завжди текст зліва + фото/ілюстрація справа (фото береться з банера, якщо є)
   void heroSlides
   const hero = promoFallback
-​
+
   const benefits = `
   <section class="section"><div class="container"><div class="benefits">
     <div class="benefit"><span class="benefit__ico">🚚</span><div><strong>Швидка доставка</strong><span>1-2 дні по Україні</span></div></div>
@@ -88,7 +88,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     <div class="benefit"><span class="benefit__ico">⭐</span><div><strong>Бонуси за покупки</strong><span>накопичуй та витрачай</span></div></div>
     <div class="benefit"><span class="benefit__ico">🎧</span><div><strong>Підтримка 24/7</strong><span>ми завжди на зв'язку</span></div></div>
   </div></div></section>`
-​
+
   const blogItems = ARTICLES.slice(0, 3)
     .map(
       (a) => `<a class="blog-mini__item" href="/blog/${esc(a.slug)}"><div class="blog-mini__date">${esc(a.date)}</div><div class="blog-mini__title">${esc(a.title)}</div></a>`,
@@ -122,7 +122,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
       <div class="brands-grid">${brandChips}</div>
     </div>
   </div></div></section>`
-​
+
   const body = `
   ${hero}
   ${section('Популярні категорії', `<div class="cat-grid">${catCards}</div>`, { link: { href: '/catalog', label: 'Усі категорії' } })}
@@ -132,7 +132,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
   ${benefits}
   ${homeCols}
   ${seoTextBlock()}`
-​
+
   return layout(body, {
     active: '/',
     navCategories: categories,
@@ -141,7 +141,7 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
     jsonLd: [jsonLdItemList([...hits, ...novelties].slice(0, 10))],
   })
 }
-​
+
 function seoTextBlock() {
   return `
   <section class="section seo-text">
@@ -152,7 +152,7 @@ function seoTextBlock() {
     </div>
   </section>`
 }
-​
+
 // ---------- Каталог ----------
 export function catalogPage({ categories, products, activeCategory, query }) {
   const crumbs = [
@@ -163,7 +163,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
   const title = activeCategory ? activeCategory.title : query ? `Пошук: ${query}` : 'Каталог солодощів'
   const canonical = activeCategory ? categoryPath(activeCategory) : '/catalog'
   const activeId = activeCategory ? activeCategory.id : null
-​
+
   const prices = products.map((p) => priceNumber(p.salePrice != null ? p.salePrice : p.price)).filter((n) => n > 0)
   const maxP = prices.length ? Math.ceil(Math.max(...prices)) : 1000
   const minP = prices.length ? Math.floor(Math.min(...prices)) : 0
@@ -173,7 +173,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
         .map((c) => `<label class="filter-check"><span class="filter-check__name"><input type="checkbox" class="country-check" value="${esc(c)}" checked /> ${esc(c)}</span><span class="filter-count">${products.filter((x) => x.countryOfOrigin === c).length}</span></label>`)
         .join('')}</div></div>`
     : ''
-​
+
   const catList = `
     <a class="cat-list__item${!activeId ? ' is-active' : ''}" href="/catalog">${icon('grid')}<span>Усі товари</span></a>
     ${categories
@@ -182,7 +182,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
           `<a class="cat-list__item${activeId === c.id ? ' is-active' : ''}" href="${categoryPath(c)}">${categoryIcon(c)}<span>${esc(c.title)}</span></a>`,
       )
       .join('')}`
-​
+
   const aside = `
   <aside class="catalog__side">
     <div class="filter-card">
@@ -212,7 +212,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
     </div>
     ${countryFilter}
   </aside>`
-​
+
   const body = `
   ${breadcrumbs(crumbs)}
   <section class="section">
@@ -243,7 +243,7 @@ export function catalogPage({ categories, products, activeCategory, query }) {
     jsonLd: [jsonLdBreadcrumb(crumbs), jsonLdItemList(products.slice(0, 20))],
   })
 }
-​
+
 // ---------- Картка товару ----------
 export function productPage({ product, related, reviews, categories = [], user = null, views = null, keywords = null }) {
   const p = product
@@ -253,7 +253,7 @@ export function productPage({ product, related, reviews, categories = [], user =
   ]
   if (p.category) crumbs.push({ name: p.category.title, url: categoryPath({ id: p.categoryId, title: p.category.title }) })
   crumbs.push({ name: p.title, url: p.path })
-​
+
   const gallery = p.images && p.images.length ? p.images : p.image ? [p.image] : []
   const thumbs =
     gallery.length > 1
@@ -267,7 +267,7 @@ export function productPage({ product, related, reviews, categories = [], user =
   const video = p.video
     ? `<video class="gallery__video" src="${esc(p.video)}" controls preload="none" playsinline></video>`
     : ''
-​
+
   const n = Math.abs(Number(p.id) || 1)
   const hasReviews = !!(reviews && reviews.count)
   const rating = hasReviews ? reviews.avg : null
@@ -278,12 +278,12 @@ export function productPage({ product, related, reviews, categories = [], user =
   const statsHtml = stats.length ? `<div class="product__stats">${stats.join('')}</div>` : ''
   const weight = weightLabel(p)
   const hit = (p.orderCount || 0) >= 30
-​
+
   const badges = []
   if (p.discount) badges.push(`<span class="badge badge--sale">-${p.discount}%</span>`)
   if (hit) badges.push(`<span class="badge badge--hit">🔥 Хіт продажів</span>`)
   const badgesHtml = badges.length ? `<div class="product__badges">${badges.join('')}</div>` : ''
-​
+
   const specs = []
   if (p.weightG) specs.push(['Вага', weight])
   if (p.unitsPerPack) specs.push(['Шт. в упаковці', `${p.unitsPerPack}`])
@@ -293,7 +293,7 @@ export function productPage({ product, related, reviews, categories = [], user =
   const specsTable = specs.length
     ? `<table class="specs">${specs.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table>`
     : '<p class="muted">Характеристики уточнюються.</p>'
-​
+
   const compose = []
   if (p.calories) compose.push(['Калорійність', `${p.calories} ккал / 100г`])
   if (p.proteins != null) compose.push(['Білки', `${p.proteins} г`])
@@ -303,7 +303,7 @@ export function productPage({ product, related, reviews, categories = [], user =
   const composeTable = compose.length
     ? `<table class="specs">${compose.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</table>`
     : '<p class="muted">Склад та поживність уточнюються.</p>'
-​
+
   const reviewsItems =
     reviews && reviews.count
       ? `<div class="reviews">${reviews.reviews
@@ -331,11 +331,11 @@ export function productPage({ product, related, reviews, categories = [], user =
       </form>`
     : `<p class="muted" style="margin-top:16px;padding-top:16px;border-top:1px solid #8884">Щоб залишити відгук, <a href="/account">увійдіть через Telegram</a>.</p>`
   const reviewsList = reviewsItems + reviewForm
-​
+
   const descHtml = p.fullDescription || p.description
     ? `<p>${esc(p.fullDescription || p.description)}</p>`
     : '<p class="muted">Опис уточнюється.</p>'
-​
+
   const deliveryHtml = `<h4>🚚 Доставка</h4><ul><li>Нова Пошта — 1–2 дні по всій Україні</li><li>Кур'єрська доставка по місту</li><li>Самовивіз із відділення</li></ul><h4>💳 Оплата</h4><ul><li>Оплата карткою онлайн</li><li>Накладений платіж при отриманні</li><li>Оплата через Telegram-бот</li></ul>`
   const tabs = [
     { id: 'desc', label: 'Опис', html: descHtml },
@@ -351,7 +351,7 @@ export function productPage({ product, related, reviews, categories = [], user =
     </div>
     ${tabs.map((t, i) => `<div class="tabpanel${i === 0 ? ' is-active' : ''}" data-panel="${t.id}">${t.html}</div>`).join('')}
   </div>`
-​
+
   const packsHtml =
     p.packs && p.packs.length
       ? `<div class="packs" id="packs">${p.packs
@@ -361,10 +361,10 @@ export function productPage({ product, related, reviews, categories = [], user =
           )
           .join('')}</div>`
       : ''
-​
+
   const priceVal = priceNumber(p.salePrice != null ? p.salePrice : p.price)
   const favBtn = `<button class="product__fav" type="button" data-fav="${p.id}" data-fav-title="${esc(p.title)}" data-fav-image="${esc(p.image || '')}" data-fav-price="${priceVal}" data-fav-path="${esc(p.path)}" aria-label="В обране">♡</button>`
-​
+
   const summaryRows = []
   if (p.category) summaryRows.push(['Категорія', p.category.title])
   if (p.weightG) summaryRows.push(['Вага', weight])
@@ -380,7 +380,7 @@ export function productPage({ product, related, reviews, categories = [], user =
       <div class="product__box"><span class="product__box-ico">🎁</span><div><strong>Бонуси</strong><small>+${Math.max(1, Math.floor(p.effectivePrice * 0.1))} ₴ на рахунок</small></div></div>
     </div>`
   const productAside = `<aside class="product__aside">${summaryCard}${infoBoxes}</aside>`
-​
+
   const body = `
   ${breadcrumbs(crumbs)}
   <section class="section product">
@@ -419,7 +419,7 @@ export function productPage({ product, related, reviews, categories = [], user =
     </div>
   </section>
   ${related && related.length ? section('Рекомендуємо також', productGrid(related)) : ''}`
-​
+
   const metaDesc = clamp(p.description || p.fullDescription || `${p.title} — купити в ${site.name}. Ціна ${price(p.effectivePrice)}. Доставка по Україні.`, 290)
   return layout(body, {
     active: '/catalog',
@@ -436,7 +436,7 @@ export function productPage({ product, related, reviews, categories = [], user =
     jsonLd: [jsonLdBreadcrumb(crumbs), jsonLdProduct(p, { reviews })],
   })
 }
-​
+
 // ---------- Обране ----------
 export function favoritesPage() {
   const body = `
@@ -456,7 +456,7 @@ export function favoritesPage() {
     meta: { title: 'Обране', canonical: '/favorites', noindex: true },
   })
 }
-​
+
 // ---------- Кошик ----------
 export function cartPage({ cart }) {
   const rows = cart.items
@@ -479,7 +479,7 @@ export function cartPage({ cart }) {
     </tr>`,
     )
     .join('')
-​
+
   const body = cart.items.length
     ? `
   <section class="section">
@@ -507,13 +507,13 @@ export function cartPage({ cart }) {
       <a class="btn btn--primary btn--lg" href="/catalog">До каталогу</a>
     </div>
   </section>`
-​
+
   return layout(body, {
     active: '/cart',
     meta: { title: 'Кошик', canonical: '/cart', noindex: true },
   })
 }
-​
+
 // ---------- Оформлення ----------
 export function checkoutPage({ cart, values = {}, error = null, user = null }) {
   if (!cart.items.length) {
@@ -581,7 +581,7 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
     meta: { title: 'Оформлення замовлення', canonical: '/checkout', noindex: true },
   })
 }
-​
+
 // ---------- Кабінет / Профіль ----------
 export function accountPage({ user = null, isAdmin = false }) {
   const widgetName = site.botUsername
@@ -639,7 +639,7 @@ export function accountPage({ user = null, isAdmin = false }) {
     meta: { title: 'Мій кабінет', canonical: '/account', noindex: true },
   })
 }
-​
+
 // ---------- Успіх ----------
 export function successPage({ orderId }) {
   const body = `
@@ -653,7 +653,7 @@ export function successPage({ orderId }) {
   </section>`
   return layout(body, { active: '', meta: { title: 'Замовлення прийнято', canonical: '/order/success', noindex: true } })
 }
-​
+
 // ---------- Бренди ----------
 export function brandsPage(brands = []) {
   const crumbs = [{ name: 'Головна', url: '/' }, { name: 'Бренди', url: '/brands' }]
@@ -679,7 +679,7 @@ export function brandsPage(brands = []) {
     jsonLd: [jsonLdBreadcrumb(crumbs)],
   })
 }
-​
+
 // ---------- WOW Бонуси ----------
 export function bonusPage() {
   const crumbs = [{ name: 'Головна', url: '/' }, { name: 'WOW Бонуси', url: '/bonus' }]
@@ -704,7 +704,7 @@ export function bonusPage() {
     jsonLd: [jsonLdBreadcrumb(crumbs)],
   })
 }
-​
+
 // ---------- Блог ----------
 export function blogPage() {
   const cards = ARTICLES.map(
@@ -730,7 +730,7 @@ export function blogPage() {
     jsonLd: [jsonLdBreadcrumb([{ name: 'Головна', url: '/' }, { name: 'Блог', url: '/blog' }])],
   })
 }
-​
+
 export function articlePage(a) {
   const crumbs = [
     { name: 'Головна', url: '/' },
@@ -752,7 +752,7 @@ export function articlePage(a) {
     jsonLd: [jsonLdBreadcrumb(crumbs), jsonLdArticle(a)],
   })
 }
-​
+
 // ---------- Інфо-сторінка ----------
 export function infoPage(pageData, activeHref = '') {
   const crumbs = [
@@ -780,7 +780,7 @@ export function infoPage(pageData, activeHref = '') {
     jsonLd,
   })
 }
-​
+
 // ---------- 404 ----------
 export function notFoundPage() {
   const body = `
