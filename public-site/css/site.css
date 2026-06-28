@@ -615,3 +615,8 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 /* Hero photo float (re-applied) */
 .promo__art--photo{animation:candyFloat 5s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.promo__art--photo{animation:none}}
+
+/* Header: full neon logo at top (match mockup) */
+.site-header__row{height:auto;min-height:92px}
+.logo__img--full{width:auto;height:84px;border-radius:0;filter:drop-shadow(0 0 14px rgba(255,45,142,.4))}
+@media(max-width:760px){.logo__img--full{height:58px}}
