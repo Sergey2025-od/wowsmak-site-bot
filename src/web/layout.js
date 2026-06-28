@@ -5,7 +5,7 @@ import { site, absUrl, botLink } from './site.js'
 import { esc, categoryPath } from './util.js'
 import { categoryIcon, icon } from './icons.js'
 import { metaTags, analyticsHead, jsonLdOrganization, jsonLdWebsite, jsonLdLocalBusiness } from './seo.js'
-​
+
 export const NAV = [
   { href: '/', label: 'Головна' },
   { href: '/catalog', label: 'Каталог' },
@@ -14,7 +14,7 @@ export const NAV = [
   { href: '/about', label: 'Про нас' },
   { href: '/contacts', label: 'Контакти' },
 ]
-​
+
 function header(active, navCategories, activeCatId) {
   const links = NAV.map(
     (n) =>
@@ -74,7 +74,7 @@ function header(active, navCategories, activeCatId) {
   </div></div>
 </header>`
 }
-​
+
 function bottomNav(active) {
   const item = (href, ico, label) =>
     `<a href="${href}" class="${active === href ? 'is-active' : ''}">${ico}<span>${label}</span></a>`
@@ -87,7 +87,7 @@ function bottomNav(active) {
   ${item('/account', '👤', 'Профіль')}
 </nav>`
 }
-​
+
 function footer() {
   const social = []
   if (site.instagram) social.push(`<a href="${esc(site.instagram)}" rel="nofollow noopener" target="_blank">Instagram</a>`)
@@ -119,7 +119,7 @@ function footer() {
   </div>
 </footer>`
 }
-​
+
 // Основна функція обгортки сторінки.
 // opts: { meta, jsonLd: [], active, bodyClass, navCategories, activeCatId }
 export function layout(content, opts = {}) {
