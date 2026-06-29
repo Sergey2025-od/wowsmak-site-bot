@@ -42,35 +42,24 @@ function header(active, navCategories, activeCatId) {
       <div class="topbar__right">
         <span class="topbar__lang">UA</span>
         ${site.phone ? `<a class="topbar__phone" href="tel:${esc(phoneHref)}">📞 ${esc(site.phone)}</a>` : ''}
+        <div class="topbar__actions">
+          <a class="icon-btn icon-btn--sm" href="/catalog" aria-label="Пошук" title="Пошук">🔍</a>
+          <a class="icon-btn icon-btn--sm" href="/favorites" id="favLink" aria-label="Обране" title="Обране">♡<span class="cart-badge" id="favBadge" hidden>0</span></a>
+          <a class="icon-btn icon-btn--sm account-link" href="/account" id="accountLink" aria-label="Кабінет" title="Кабінет / Вхід через Telegram">👤<span class="account-name" id="accountName" hidden></span></a>
+          <a class="icon-btn icon-btn--sm cart-link" href="/cart" aria-label="Кошик">🛒<span class="cart-badge" id="cartBadge" hidden>0</span></a>
+        </div>
       </div>
     </div>
   </div>
-  <div class="container site-header__row">
-    <a class="logo" href="/" aria-label="${esc(site.name)}">
+  <div class="promobar"><div class="container promobar__row">
+    <a class="logo logo--head" href="/" aria-label="${esc(site.name)}">
       <img class="logo__img logo__img--full" src="/assets/img/logo-head.png" alt="${esc(site.name)}" width="261" height="220" />
     </a>
-    <form class="header-search" action="/catalog" method="get" role="search">
-      <input type="search" name="q" placeholder="Пошук смаколиків…" aria-label="Пошук товарів" />
-      <button type="submit" aria-label="Знайти">🔍</button>
-    </form>
     <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><span></span><span></span><span></span></button>
-    <nav class="nav" id="nav">${links}</nav>
-    <div class="site-header__actions">
-      <a class="icon-btn" href="/favorites" id="favLink" aria-label="Обране" title="Обране">
-        ♡<span class="cart-badge" id="favBadge" hidden>0</span>
-      </a>
-      <a class="icon-btn account-link" href="/account" id="accountLink" aria-label="Кабінет" title="Кабінет / Вхід через Telegram">
-        👤<span class="account-name" id="accountName" hidden></span>
-      </a>
-      <a class="icon-btn cart-link" href="/cart" aria-label="Кошик">
-        🛒<span class="cart-badge" id="cartBadge" hidden>0</span>
-      </a>
-    </div>
-  </div>
-  <div class="promobar"><div class="container promobar__row">
     <a class="promobar__catalog" href="/catalog">▤ Каталог товарів</a>
     ${promoLinks}
     <a class="promobar__link promobar__link--wow" href="/bonus">WOW Бонуси 🎁</a>
+    <nav class="nav" id="nav">${links}</nav>
   </div></div>
 </header>`
 }
@@ -140,7 +129,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=27" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=28" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
