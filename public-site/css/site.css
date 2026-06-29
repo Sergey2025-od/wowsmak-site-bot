@@ -703,3 +703,19 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
   .promo__show--art{flex:0 0 710px;max-width:710px;margin-left:-22px}
   .promo__art--photo{max-height:660px;margin-top:-64px}
 }
+
+/* ===== v6: без eyebrow, фікс шапки, лого більше, фото більше, кнопка нагору ===== */
+.promo__eyebrow{display:none}
+.site-header{position:sticky;top:0;background:var(--bg);backdrop-filter:none;border-bottom:0}
+.promobar .logo__img--full{height:150px}
+@media(max-width:980px){.promobar .logo__img--full{height:104px}}
+@media(max-width:760px){.promobar .logo__img--full{height:64px}}
+@media(min-width:981px){
+  .promo__content{flex:0 0 440px;max-width:440px}
+  .promo__show--art{flex:0 0 760px;max-width:760px;margin-left:-26px}
+  .promo__art--photo{max-height:720px;margin-top:-70px}
+}
+.to-top{position:fixed;right:18px;bottom:18px;z-index:70;width:50px;height:50px;border-radius:50%;border:0;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--accent-2));color:#fff;font-size:1.6rem;line-height:1;box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s,transform .25s}
+.to-top.is-visible{opacity:1;visibility:visible;transform:none}
+.to-top:hover{filter:brightness(1.08)}
+@media(max-width:760px){.to-top{bottom:74px;right:14px}}
