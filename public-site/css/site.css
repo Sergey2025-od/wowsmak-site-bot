@@ -692,3 +692,14 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
   .promo__art--photo{max-height:640px;margin-top:-64px;filter:drop-shadow(0 18px 46px rgba(0,0,0,.5))}
 }
 @media(max-width:980px){.promo__art--photo{margin-top:0}}
+
+/* ===== v5: шапка без плашки, меню зсунуте, фото більше і впритул ===== */
+.site-header{background:transparent;backdrop-filter:none;border-bottom:0}
+.promobar{background:transparent;border-top:0;box-shadow:none}
+@media(min-width:981px){
+  .promobar__catalog{margin-left:auto}
+  .promo{gap:8px}
+  .promo__content{flex:0 0 470px;max-width:470px}
+  .promo__show--art{flex:0 0 710px;max-width:710px;margin-left:-22px}
+  .promo__art--photo{max-height:660px;margin-top:-64px}
+}
