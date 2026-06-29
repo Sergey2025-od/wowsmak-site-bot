@@ -669,3 +669,15 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 .promobar__link--wow{position:relative;display:inline-flex;align-items:center}
 .promobar__new{margin-left:5px;background:#ff2d4e;color:#fff;font-size:.6rem;font-weight:800;line-height:1;padding:3px 5px;border-radius:6px;text-transform:uppercase;letter-spacing:.04em}
 @media(max-width:760px){.topbar__phone-txt small{display:none}}
+
+/* ===== Геро під макет: текст і фото поруч по центру ===== */
+@media(min-width:981px){
+  .promo{justify-content:center;align-items:center;gap:30px}
+  .promo__content{flex:0 0 500px;max-width:500px}
+  .promo__show--art{flex:0 0 600px;max-width:600px}
+  .promo__art--photo{width:100%;max-height:540px}
+  .hero-feats{gap:16px;margin:8px 0 22px}
+  .hero-feat__ico{width:42px;height:42px}
+  .promobar__row{gap:22px}
+  .promobar .logo--head{margin-right:6px}
+}
