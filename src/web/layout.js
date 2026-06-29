@@ -23,7 +23,7 @@ function header(active, navCategories, activeCatId) {
   const phoneHref = site.phone ? site.phone.replace(/[^+\d]/g, '') : ''
   const promoLinks = [
     { href: '/catalog?show=new', label: 'Новинки' },
-    { href: '/catalog?show=hits', label: 'Хіти продажів' },
+    { href: '/catalog?show=hits', label: '🔥 Хіти продажів' },
     { href: '/catalog?show=sale', label: 'Акції' },
     { href: '/brands', label: 'Бренди' },
   ]
@@ -41,7 +41,7 @@ function header(active, navCategories, activeCatId) {
       </nav>
       <div class="topbar__right">
         <span class="topbar__lang">UA</span>
-        ${site.phone ? `<a class="topbar__phone" href="tel:${esc(phoneHref)}">📞 ${esc(site.phone)}</a>` : ''}
+        ${site.phone ? `<a class="topbar__phone" href="tel:${esc(phoneHref)}"><span class="topbar__phone-ico">📞</span><span class="topbar__phone-txt"><b>${esc(site.phone)}</b><small>Безкоштовно</small></span></a>` : ''}
         <div class="topbar__actions">
           <a class="icon-btn icon-btn--sm" href="/catalog" aria-label="Пошук" title="Пошук">🔍</a>
           <a class="icon-btn icon-btn--sm" href="/favorites" id="favLink" aria-label="Обране" title="Обране">♡<span class="cart-badge" id="favBadge" hidden>0</span></a>
@@ -58,7 +58,7 @@ function header(active, navCategories, activeCatId) {
     <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><span></span><span></span><span></span></button>
     <a class="promobar__catalog" href="/catalog">▤ Каталог товарів</a>
     ${promoLinks}
-    <a class="promobar__link promobar__link--wow" href="/bonus">WOW Бонуси 🎁</a>
+    <a class="promobar__link promobar__link--wow" href="/bonus">WOW Бонуси<span class="promobar__new">NEW</span></a>
     <nav class="nav" id="nav">${links}</nav>
   </div></div>
 </header>`
@@ -129,7 +129,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=29" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=30" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
