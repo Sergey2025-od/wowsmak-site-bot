@@ -719,3 +719,11 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 .to-top.is-visible{opacity:1;visibility:visible;transform:none}
 .to-top:hover{filter:brightness(1.08)}
 @media(max-width:760px){.to-top{bottom:74px;right:14px}}
+
+/* ===== v7: праве фото значно більше, виходить за край ===== */
+@media(min-width:981px){
+  .promo{gap:4px;align-items:center}
+  .promo__content{flex:0 0 400px;max-width:400px}
+  .promo__show--art{flex:1 1 auto;max-width:none;min-width:0;margin-left:-10px;margin-right:-60px;justify-content:flex-end}
+  .promo__art--photo{width:auto;max-width:920px;height:auto;max-height:780px;margin-top:-80px}
+}
