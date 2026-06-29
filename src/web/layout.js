@@ -129,7 +129,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=33" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=34" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
@@ -138,17 +138,8 @@ export function layout(content, opts = {}) {
   ${footer()}
   ${bottomNav(active)}
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <div class="theme-switch" id="themeSwitch">
-    <div class="theme-switch__panel">
-      <h4>Оберіть дизайн</h4>
-      <p>Три варіанти — обери, що подобається</p>
-      <button class="theme-opt" data-theme-set="1" type="button"><span class="theme-opt__sw theme-opt__sw--1"></span><span>Неонова<small>Темна (основна)</small></span></button>
-      <button class="theme-opt" data-theme-set="2" type="button"><span class="theme-opt__sw theme-opt__sw--2"></span><span>Неон<small>Темна рожева</small></span></button>
-      <button class="theme-opt" data-theme-set="3" type="button"><span class="theme-opt__sw theme-opt__sw--3"></span><span>Цукеркова<small>Світла</small></span></button>
-    </div>
-    <button class="theme-switch__toggle" id="themeToggle" type="button" aria-label="Змінити дизайн">🎨</button>
-  </div>
-  <script src="/assets/js/site.js?v=15" defer></script>
+  <button class="to-top" id="toTop" type="button" aria-label="Нагору" title="Нагору">↑</button>
+  <script src="/assets/js/site.js?v=16" defer></script>
 </body>
 </html>`
 }
