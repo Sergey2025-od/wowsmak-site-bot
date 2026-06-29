@@ -620,3 +620,32 @@ body{background:radial-gradient(1100px 480px at 12% -8%,rgba(123,63,247,.20),tra
 .site-header__row{height:auto;min-height:92px}
 .logo__img--full{width:auto;height:84px;border-radius:0;filter:drop-shadow(0 0 14px rgba(255,45,142,.4))}
 @media(max-width:760px){.logo__img--full{height:58px}}
+
+/* ===== Шапка під макет glav.png ===== */
+.topbar__row{min-height:42px}
+.topbar__right{gap:12px}
+.topbar__actions{display:flex;align-items:center;gap:2px}
+.topbar__actions .icon-btn{width:32px;height:32px;min-width:32px;background:none;border:0;color:#fff;border-radius:8px;font-size:1.06rem}
+.topbar__actions .icon-btn:hover{color:var(--accent);background:rgba(255,255,255,.14)}
+.promobar__row{align-items:center;gap:16px;padding:12px 20px}
+.promobar .logo--head{flex:0 0 auto;display:inline-flex;align-items:center;padding:0}
+.promobar .logo__img--full{height:78px;width:auto}
+.nav{display:none}
+@media(max-width:760px){
+  .promobar .logo__img--full{height:50px}
+  .promobar__row{gap:10px;padding:10px 14px}
+  .topbar__actions{margin-left:auto}
+  .topbar__right{gap:8px}
+}
+
+/* ===== Розміри картинок під макет ===== */
+.cat-grid{grid-template-columns:repeat(auto-fill,minmax(134px,1fr))}
+.cat-card{aspect-ratio:1/1.1}
+.promo__show--art{flex:1 1 56%;max-width:800px}
+.promo__art--photo{max-height:680px}
+
+/* ===== Нижні кнопки героя під макет ===== */
+.hero-cta{gap:14px;margin-top:4px}
+.hero-cta .btn--lg{padding:13px 26px;font-size:1rem}
+.btn--primary{box-shadow:0 10px 26px rgba(255,45,142,.45)}
+.btn--hits{background:rgba(0,0,0,.32);border:2px solid var(--accent);color:#fff}
