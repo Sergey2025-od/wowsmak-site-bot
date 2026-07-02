@@ -258,6 +258,41 @@ export function createSiteRouter() {
     html(res, successPage({ orderId: (req.query.id || '').toString().slice(0, 40) }))
   })
 
+  // ---------- Нова Пошта: проксі автопідказки адрес (ключ лишається на сервері) ----------
+  async function npRequest(modelName, calledMethod, methodProperties) {
+    const apiKey = config.novaPoshtaKey
+    if (!apiKey) throw new Error('NOVA_POSHTA_KEY не задано')
+    const resp = await fetch('https://api.novaposhta.ua/v2.0/json/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, modelName, calledMethod, methodProperties }),
+    })
+    return resp.json()
+  }
+  router.get('/np/cities', async (req, res) => {
+    try {
+      const q = (req.query.q || '').toString().trim()
+      if (q.length < 2) return res.json({ items: [] })
+      const json = await npRequest('Address', 'searchSettlements', { CityName: q, Limit: '15', Page: '1' })
+      const addresses = (json.data && json.data[0] && json.data[0].Addresses) || []
+      res.json({ items: addresses.map((a) => ({ ref: a.Ref, present: a.Present || a.MainDescription })) })
+    } catch (e) {
+      res.json({ items: [], error: e.message })
+    }
+  })
+  router.get('/np/warehouses', async (req, res) => {
+    try {
+      const ref = (req.query.ref || '').toString().trim()
+      const q = (req.query.q || '').toString().trim()
+      if (!ref) return res.json({ items: [] })
+      const json = await npRequest('Address', 'getWarehouses', { SettlementRef: ref, FindByString: q, Limit: '50', Page: '1', Language: 'UA' })
+      const data = json.data || []
+      res.json({ items: data.map((w) => ({ ref: w.Ref, name: w.Description })) })
+    } catch (e) {
+      res.json({ items: [], error: e.message })
+    }
+  })
+
   // ---------- Обране (клієнтське) ----------
   router.get('/favorites', (req, res) => html(res, favoritesPage()))
 
