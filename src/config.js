@@ -36,4 +36,7 @@ export const config = {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+
+  // Ключ API Нової Пошти для автопідказки адрес (задається у змінних оточення)
+  novaPoshtaKey: process.env.NOVA_POSHTA_KEY || '',
 }
