@@ -58,7 +58,6 @@ function header(active, navCategories, activeCatId) {
     <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><span></span><span></span><span></span></button>
     <a class="promobar__catalog" href="/catalog">▤ Каталог товарів</a>
     ${promoLinks}
-    <a class="promobar__link promobar__link--wow" href="/bonus">WOW Бонуси<span class="promobar__new">NEW</span></a>
     <nav class="nav" id="nav">${links}</nav>
   </div></div>
 </header>`
@@ -129,7 +128,7 @@ export function layout(content, opts = {}) {
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="alternate icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=36" />${analyticsHead()}
+  <link rel="stylesheet" href="/assets/css/site.css?v=38" />${analyticsHead()}
   ${allJsonLd}
 </head>
 <body class="${esc(bodyClass)}">
