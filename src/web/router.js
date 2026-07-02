@@ -36,7 +36,6 @@ import {
   favoritesPage,
   accountPage,
   brandsPage,
-  bonusPage,
 } from './pages.js'
 import { ARTICLES, getArticle, infoPages, STATIC_PATHS } from './content.js'
 import { sitemapXml, robotsTxt } from './seo.js'
@@ -271,7 +270,6 @@ export function createSiteRouter() {
       next(e)
     }
   })
-  router.get('/bonus', (req, res) => html(res, bonusPage()))
   router.get('/blog', (req, res) => html(res, blogPage()))
   router.get('/blog/:slug', (req, res) => {
     const a = getArticle((req.params.slug || '').toString())
