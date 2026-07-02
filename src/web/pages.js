@@ -110,13 +110,6 @@ export function homePage({ categories, hits, novelties, sales, banners = [], bra
       <div class="home-panel__head"><h2>📝 Блог ${esc(site.name)}</h2><a class="home-panel__more" href="/blog">Всі статті →</a></div>
       <div class="blog-mini">${blogItems}</div>
     </div>
-    <div class="home-panel bonus-card">
-      <div class="home-panel__head"><h2>🎁 WOW Бонуси</h2></div>
-      <p>Купуй та отримуй бонуси: <strong>1 бонус = 1 ₴</strong></p>
-      <div class="bonus-card__big">до 10%</div>
-      <p>повертаємо бонусами з кожної покупки</p>
-      <a class="btn btn--light" href="/bonus" style="margin-top:8px">Детальніше</a>
-    </div>
     <div class="home-panel">
       <div class="home-panel__head"><h2>🏆 Топ бренди</h2><a class="home-panel__more" href="/brands">Всі бренди →</a></div>
       <div class="brands-grid">${brandChips}</div>
@@ -377,7 +370,6 @@ export function productPage({ product, related, reviews, categories = [], user =
   const infoBoxes = `<div class="product__boxes">
       <div class="product__box"><span class="product__box-ico">🚚</span><div><strong>Доставка</strong><small>1–2 дні по Україні, Нова Пошта</small></div></div>
       <div class="product__box"><span class="product__box-ico">💳</span><div><strong>Оплата</strong><small>Онлайн або при отриманні</small></div></div>
-      <div class="product__box"><span class="product__box-ico">🎁</span><div><strong>Бонуси</strong><small>+${Math.max(1, Math.floor(p.effectivePrice * 0.1))} ₴ на рахунок</small></div></div>
     </div>`
   const productAside = `<aside class="product__aside">${summaryCard}${infoBoxes}</aside>`
 
@@ -399,7 +391,6 @@ export function productPage({ product, related, reviews, categories = [], user =
         </div>
         ${statsHtml}
         <div class="product__price" id="productPrice" data-unit-price="${priceVal}">${priceBlock(p)}${weight ? `<span class="price__unit">/ ${esc(weight)}</span>` : ''}</div>
-        <div class="product__bonus">🎁 +${Math.max(1, Math.floor(p.effectivePrice * 0.1))} бонусів на рахунок</div>
         ${packsHtml}
         <div class="product__actions">
           <div class="qty" data-qty>
