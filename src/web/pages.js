@@ -554,7 +554,17 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
           <label>Ім'я та прізвище *<input name="fullName" required value="${esc(values.fullName || user?.first_name || '')}" autocomplete="name" /></label>
           <label>Телефон *<input name="phone" required type="tel" value="${esc(values.phone || '')}" placeholder="+380..." autocomplete="tel" /></label>
           <label>Email<input name="email" type="email" value="${esc(values.email || '')}" autocomplete="email" /></label>
-          <label>Адреса доставки (місто, відділення НП) *<input name="address" required value="${esc(values.address || '')}" autocomplete="street-address" /></label>
+          <div class="np-fields">
+            <label class="np-field">Місто *
+              <input name="np_city" id="npCity" required value="${esc(values.address || '')}" autocomplete="off" placeholder="Почніть вводити місто…" />
+              <div class="np-list" id="npCityList"></div>
+            </label>
+            <label class="np-field">Відділення / поштомат Нової Пошти *
+              <input name="np_warehouse" id="npWarehouse" required autocomplete="off" placeholder="Спочатку оберіть місто" />
+              <div class="np-list" id="npWhList"></div>
+            </label>
+          </div>
+          <input type="hidden" name="address" id="npAddress" value="${esc(values.address || '')}" />
           <label>Коментар до замовлення<textarea name="comment" rows="3">${esc(values.comment || '')}</textarea></label>
           <button class="btn btn--primary btn--lg btn--block" type="submit">Підтвердити замо��лення</button>
           <p class="muted small">Натискаючи кнопку, ви погоджуєтесь, щ�� менеджер зв'яжеться з вами для підтвердження.</p>
@@ -566,7 +576,8 @@ export function checkoutPage({ cart, values = {}, error = null, user = null }) {
         </aside>
       </div>
     </div>
-  </section>`
+  </section>
+  <script defer src="/assets/js/np.js?v=1"></script>`
   return layout(body, {
     active: '/checkout',
     meta: { title: 'Оформлення замовлення', canonical: '/checkout', noindex: true },
